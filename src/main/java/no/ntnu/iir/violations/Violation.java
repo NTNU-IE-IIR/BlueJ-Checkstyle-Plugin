@@ -13,7 +13,7 @@ public class Violation {
   private String summary;
   private File file;
   private TextLocation location;
-  private String ruleDefinition;
+  private RuleDefinition ruleDefinition;
 
   /**
    * Constructs a new Violation without a RuleDefinition.
@@ -36,7 +36,12 @@ public class Violation {
    * @param location TextLocation of where in the file the violation was found
    * @param ruleDefinition RuleDefinition containing a description of the violated rule
    */
-  public Violation(String summary, File file, TextLocation location, String ruleDefinition) {
+  public Violation(
+      String summary, 
+      File file, 
+      TextLocation location, 
+      RuleDefinition ruleDefinition
+  ) {
     this.summary = summary;
     this.file = file;
     this.location = location;
@@ -76,7 +81,7 @@ public class Violation {
    * 
    * @return A RuleDefinition of the violated rule.
    */
-  public String getRuleDefinition() {
+  public RuleDefinition getRuleDefinition() {
     return ruleDefinition;
   }
 }
