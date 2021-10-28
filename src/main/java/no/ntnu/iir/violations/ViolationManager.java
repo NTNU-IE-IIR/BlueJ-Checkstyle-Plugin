@@ -87,6 +87,6 @@ public class ViolationManager {
    * Notifies listening classes that a change has been made in the violations.
    */
   private void notifyListeners() {
-    this.listeners.forEach(listener -> listener.update(this.violations));
+    this.listeners.forEach(listener -> listener.onViolationsChanged(this.violations));
   }
 }

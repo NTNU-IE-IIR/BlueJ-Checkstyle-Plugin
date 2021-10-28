@@ -8,5 +8,5 @@ import java.util.List;
  * Should be implemented by listeners of the ListenerManager class.
  */
 public interface ViolationListener {
-  void update(HashMap<String, List<Violation>> violations);
+  void onViolationsChanged(HashMap<String, List<Violation>> violations);
 }
