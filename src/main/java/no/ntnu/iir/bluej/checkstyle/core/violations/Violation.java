@@ -1,4 +1,4 @@
-package no.ntnu.iir.core.violations;
+package no.ntnu.iir.bluej.checkstyle.core.violations;
 
 import bluej.extensions2.editor.TextLocation;
 import java.io.File;

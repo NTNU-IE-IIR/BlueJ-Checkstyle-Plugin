@@ -1,4 +1,4 @@
-package no.ntnu.iir.core.violations;
+package no.ntnu.iir.bluej.checkstyle.core.violations;
 
 import java.util.HashMap;
 import java.util.List;
