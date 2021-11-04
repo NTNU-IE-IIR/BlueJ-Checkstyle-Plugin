@@ -18,9 +18,9 @@ public class Violation {
   /**
    * Constructs a new Violation without a RuleDefinition.
    * 
-   * @param summary String containing a brief explanation of the violation
-   * @param file File where the violation was found
-   * @param location TextLocation of where in the file the violation was found
+   * @param summary a String containing a brief explanation of the violation
+   * @param file the File where the violation was found
+   * @param location the TextLocation where the violation was found in the file
    */
   public Violation(String summary, File file, TextLocation location) {
     this.summary = summary;
@@ -31,10 +31,10 @@ public class Violation {
   /**
    * Constructs a new Violation with a RuleDefinition.
    * 
-   * @param summary String containing a brief explanation of the violation
-   * @param file File where the violation was found
-   * @param location TextLocation of where in the file the violation was found
-   * @param ruleDefinition RuleDefinition containing a description of the violated rule
+   * @param summary a String containing a brief explanation of the violation
+   * @param file the File where the violation was found
+   * @param location the TextLocation where the violation was found in the file
+   * @param ruleDefinition a RuleDefinition containing a description of the violated rule
    */
   public Violation(
       String summary, 
@@ -51,7 +51,7 @@ public class Violation {
   /**
    * Returns a brief explanation of the violation.
    * 
-   * @return A brief explanation of the violation.
+   * @return a brief explanation of the violation.
    */
   public String getSummary() {
     return summary;
@@ -60,7 +60,7 @@ public class Violation {
   /**
    * Returns the file where the violation was found.
    * 
-   * @return A File where the violation was found.
+   * @return the File where the violation was found.
    */
   public File getFile() {
     return file;
@@ -69,7 +69,7 @@ public class Violation {
   /**
    * Returns the TextLocation of where the violation was found in the file.
    * 
-   * @return A TextLocation of where the violation was found in the file.
+   * @return the TextLocation where the violation was found in the file.
    */
   public TextLocation getLocation() {
     return location;
@@ -79,7 +79,7 @@ public class Violation {
   /**
    * Returns the RuleDefinition of the violated rule.
    * 
-   * @return A RuleDefinition of the violated rule.
+   * @return the RuleDefinition of the violated rule.
    */
   public RuleDefinition getRuleDefinition() {
     return ruleDefinition;

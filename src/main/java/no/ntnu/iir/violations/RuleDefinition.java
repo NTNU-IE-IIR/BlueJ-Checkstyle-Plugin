@@ -13,9 +13,9 @@ public class RuleDefinition {
   /**
    * Constructs a new RuleDefinition for linter rule.
    * 
-   * @param title String representing the title of the rule definition.
-   * @param ruleId String representing the rules unique identifier.
-   * @param description String describing the rule.
+   * @param title a string representing the title of the rule definition.
+   * @param ruleId a string representing the rules unique identifier.
+   * @param description a string describing the rule.
    */
   public RuleDefinition(String title, String ruleId, String description) {
     this.title = title;
@@ -26,7 +26,7 @@ public class RuleDefinition {
   /**
    * Returns the title of the rule definition.
    * 
-   * @return The title of the rule definition.
+   * @return the title of the rule definition.
    */
   public String getTitle() {
     return title;
@@ -35,7 +35,7 @@ public class RuleDefinition {
   /**
    * Returns the unique identifier of the rule.
    * 
-   * @return The unique identifier of the rule.
+   * @return the unique identifier of the rule.
    */
   public String getRuleId() {
     return ruleId;
@@ -44,7 +44,7 @@ public class RuleDefinition {
   /**
    * Returns the description of the rule.
    * 
-   * @return The description of the rule.
+   * @return the description of the rule.
    */
   public String getDescription() {
     return description;

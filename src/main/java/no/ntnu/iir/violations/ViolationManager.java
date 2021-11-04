@@ -25,8 +25,8 @@ public class ViolationManager {
    * Adds an entry containing a files violations.
    * Notifies listeners that violations have changed.
    * 
-   * @param fileName String representing the name of the file.
-   * @param violations A List of violations found in the file.
+   * @param fileName a String representing the name of the file.
+   * @param violations a List of violations found in the file.
    */
   public void addViolations(String fileName, List<Violation> violations) {
     this.violations.put(fileName, violations);
@@ -36,8 +36,8 @@ public class ViolationManager {
   /**
    * Returns a list of violations for a specific file.
    * 
-   * @param fileName String representing the name of the file.
-   * @return A List of violations for a specific file.
+   * @param fileName a String representing the name of the file.
+   * @return a List of violations for a specific file.
    */
   public List<Violation> getViolations(String fileName) {
     return this.violations.get(fileName);
@@ -47,8 +47,8 @@ public class ViolationManager {
    * Updates an entry containing a files violations.
    * Notifies listeners that violations have changed.
    * 
-   * @param fileName String representing the name of the file.
-   * @param violations A List of the violations found in the file.
+   * @param fileName a String representing the name of the file.
+   * @param violations a List of the violations found in the file.
    */
   public void setViolations(String fileName, List<Violation> violations) {
     this.violations.replace(fileName, violations);
@@ -58,7 +58,7 @@ public class ViolationManager {
   /**
    * Removes violations for a file and notifies the listeners of the change.
    * 
-   * @param fileName String representing the name of the file.
+   * @param fileName a String representing the name of the file.
    */
   public void removeViolations(String fileName) {
     this.violations.remove(fileName);
@@ -68,7 +68,7 @@ public class ViolationManager {
   /**
    * Adds a new listener to the list of listeners.
    * 
-   * @param listener ViolationListener to add to the list of listeners.
+   * @param listener a ViolationListener to add to the list of listeners.
    */
   public void addListener(ViolationListener listener) {
     this.listeners.add(listener);
@@ -77,7 +77,7 @@ public class ViolationManager {
   /**
    * Removes a listener from the list of listeners.
    * 
-   * @param listener ViolationListener to remove from the list of listeners.
+   * @param listener a ViolationListener to remove from the list of listeners.
    */
   public void removeListener(ViolationListener listener) {
     this.listeners.remove(listener);
