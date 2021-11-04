@@ -1,4 +1,4 @@
-package no.ntnu.iir.violations;
+package no.ntnu.iir.core.violations;
 
 /**
  * Represents a linter rule definition.

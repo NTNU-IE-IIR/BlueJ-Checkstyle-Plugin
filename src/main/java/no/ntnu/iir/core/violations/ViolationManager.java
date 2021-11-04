@@ -1,4 +1,4 @@
-package no.ntnu.iir.violations;
+package no.ntnu.iir.core.violations;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package no.ntnu.iir.violations;
+package no.ntnu.iir.core.violations;
 
 import bluej.extensions2.editor.TextLocation;
 import java.io.File;
