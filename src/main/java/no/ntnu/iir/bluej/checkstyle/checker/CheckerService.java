@@ -3,30 +3,25 @@ package no.ntnu.iir.bluej.checkstyle.checker;
 import com.puppycrawl.tools.checkstyle.Checker;
 import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
 import com.puppycrawl.tools.checkstyle.PropertiesExpander;
+import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
-import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
 /**
  * Represents a Checker service.
  * Responsible for handling requests to check files using a Checkstyle checker.
  */
 public class CheckerService {
-  private ViolationManager violationManager;
   private Checker checker;
 
-  public CheckerService(ViolationManager violationManager) {
-    this.violationManager = violationManager;
-  }
-  
   /**
-   * Initializes the CheckerService.
+   * Constructs a new CheckerService.
    */
-  public void init() {
+  public CheckerService() {
     this.checker = new Checker();
     
     this.checker.setBasedir(null);
@@ -38,10 +33,6 @@ public class CheckerService {
       // Likely caused by a faulty config file used
       e.printStackTrace();
     }
-
-    this.checker.addListener(
-        new CheckerListener(this.violationManager)
-    );
   }
 
   /**
@@ -57,6 +48,24 @@ public class CheckerService {
         this.getClass().getClassLoader().getResource("config/google_checks.xml").toString(),
         new PropertiesExpander(checkstyleProperties)
     ));
+  }
+
+  /**
+   * Adds a AuditListener to the Checker.
+   * 
+   * @param listener the AuditListener to add to the Checker.
+   */
+  public void addListener(AuditListener listener) {
+    this.checker.addListener(listener);
+  }
+
+  /**
+   * Removes a AuditListener from the Checker.
+   * 
+   * @param listener the AuditListener to remove from the Checker.
+   */
+  public void removeListener(AuditListener listener) {
+    this.checker.removeListener(listener);
   }
 
   /**
