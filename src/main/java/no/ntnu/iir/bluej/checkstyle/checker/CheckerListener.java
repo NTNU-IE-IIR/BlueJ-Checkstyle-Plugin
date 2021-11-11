@@ -11,7 +11,8 @@ import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
 /**
  * Represents a CheckerListener.
- * Responsible for adding errors to the ViolationManager.
+ * Responsible for adding errors to the ViolationManager, 
+ * and purging old errors from the ViolationManager when a file is reprocessed.
  */
 public class CheckerListener implements AuditListener {
   private ViolationManager violationManager;
