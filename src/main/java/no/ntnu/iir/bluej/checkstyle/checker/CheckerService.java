@@ -59,6 +59,22 @@ public class CheckerService {
     ));
   }
 
+  /**
+   * Checks a single file using Checkstyle.
+   * 
+   * @param fileToCheck a File to check with Checkstyle.
+   * @param charset the Files charset encoding.
+   * 
+   * @throws UnsupportedEncodingException if an unsupported encoding is used.
+   * @throws CheckstyleException if an error condition within Checkstyle occurs.
+   */
+  public void checkFile(
+      File fileToCheck,
+      String charset
+  ) throws UnsupportedEncodingException, CheckstyleException {
+    this.checker.setCharset(charset);
+    this.checker.process(List.of(fileToCheck));
+  }
 
   /**
    * Checks a list of files.
