@@ -69,7 +69,7 @@ public class CheckerService {
    * @throws UnsupportedEncodingException if an unsupported encoding is used.
    * @throws CheckstyleException if an error condition within Checkstyle occurs.
    */
-  public void checkCode(
+  public void checkFiles(
       List<File> filesToCheck, 
       String charset
   ) throws UnsupportedEncodingException, CheckstyleException {
