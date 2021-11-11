@@ -77,10 +77,10 @@ public class CheckerService {
   }
 
   /**
-   * Checks a list of files.
+   * Checks a list of files using Checkstyle.
    * 
-   * @param filesToCheck a List of Files to check.
-   * @param charset the files charset encoding.
+   * @param filesToCheck a List of Files to check with Checkstyle.
+   * @param charset the Files charset encoding.
    * 
    * @throws UnsupportedEncodingException if an unsupported encoding is used.
    * @throws CheckstyleException if an error condition within Checkstyle occurs.
