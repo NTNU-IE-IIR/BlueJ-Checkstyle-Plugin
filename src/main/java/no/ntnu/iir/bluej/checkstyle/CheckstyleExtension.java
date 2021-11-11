@@ -16,7 +16,6 @@ public class CheckstyleExtension extends Extension {
     ViolationManager violationManager = new ViolationManager();
     CheckerService checkerService = new CheckerService(violationManager);
     checkerService.init();
-    blueJ.setMenuGenerator(new CheckstyleMenuBuilder(checkerService));
   }
 
   @Override
