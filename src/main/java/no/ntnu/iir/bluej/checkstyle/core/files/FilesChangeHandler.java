@@ -7,15 +7,15 @@ import no.ntnu.iir.bluej.checkstyle.core.checker.ICheckerService;
 import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
 /**
- * Represents a FilesChangeListener, listening for file changes in class files.
+ * Represents a FilesChangeHandler, listening for file changes in class files and handles them.
  * Implements BlueJ's ClassListener interface, and handles the events triggered by BlueJ.
  * Should remove old Violations from the ViolationsManager, and if necessary reprocess the file.
  */
-public class FilesChangeListener implements ClassListener {
+public class FilesChangeHandler implements ClassListener {
   private ViolationManager violationManager;
   private ICheckerService checkerService;
 
-  public FilesChangeListener(ViolationManager violationManager, ICheckerService checkerService) {
+  public FilesChangeHandler(ViolationManager violationManager, ICheckerService checkerService) {
     this.violationManager = violationManager;
     this.checkerService = checkerService;
   }
