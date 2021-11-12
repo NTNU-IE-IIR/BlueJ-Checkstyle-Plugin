@@ -9,7 +9,9 @@ import javafx.scene.layout.Priority;
 import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 
 /**
- * Custom ListCell Factory for Violations.
+ * Represents a ListCell Factory for Violations.
+ * Responsible for creating new ListCells and layouting specifically for Violations.
+ * Also handles click events for buttons within the Cell.
  */
 public class ViolationCell extends ListCell<Violation> {
   private HBox hbox = new HBox();
@@ -26,9 +28,9 @@ public class ViolationCell extends ListCell<Violation> {
     super();
 
     this.summaryLabel = new Label();
-    HBox.setHgrow(pane, Priority.ALWAYS);
+    HBox.setHgrow(pane, Priority.ALWAYS); // adds space between label and button(s)
 
-    ruleButton.setVisible(false);
+    ruleButton.setVisible(false); // only display if a rule def is present
     ruleButton.setOnAction(clickEvent -> {
       // should open rule definition in a WebView
     });
