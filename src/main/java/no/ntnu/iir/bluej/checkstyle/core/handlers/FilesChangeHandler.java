@@ -1,4 +1,4 @@
-package no.ntnu.iir.bluej.checkstyle.core.files;
+package no.ntnu.iir.bluej.checkstyle.core.handlers;
 
 import bluej.extensions2.BClass;
 import bluej.extensions2.event.ClassEvent;
