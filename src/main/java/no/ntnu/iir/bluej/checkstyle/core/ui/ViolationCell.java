@@ -1,11 +1,10 @@
 package no.ntnu.iir.bluej.checkstyle.core.ui;
 
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 
 /**
@@ -16,9 +15,6 @@ import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 public class ViolationCell extends ListCell<Violation> {
   private HBox hbox = new HBox();
   private Label summaryLabel;
-  private Pane pane = new Pane();
-  private Button ruleButton = new Button("Open rule description");
-  private Button viewButton = new Button("View in editor");
   private Violation violation;
 
   /**
@@ -28,19 +24,11 @@ public class ViolationCell extends ListCell<Violation> {
     super();
 
     this.summaryLabel = new Label();
-    HBox.setHgrow(pane, Priority.ALWAYS); // adds space between label and button(s)
-
-    ruleButton.setVisible(false); // only display if a rule def is present
-    ruleButton.setOnAction(clickEvent -> {
-      // should open rule definition in a WebView
-    });
-
-    viewButton.setOnAction(clickEvent -> {
-      // should open text location in editor
-    });
-
-    hbox.getChildren().addAll(this.summaryLabel, this.pane, this.ruleButton, this.viewButton);
+    // TODO: Add a violationHint that shows line and column numbers.
+    
+    hbox.getChildren().addAll(this.summaryLabel);
     hbox.setSpacing(2);
+    this.setOnMouseClicked(this::handleMouseClick);
   }
 
   /**
@@ -57,10 +45,22 @@ public class ViolationCell extends ListCell<Violation> {
       this.violation = violation;
       this.summaryLabel.setText(violation.getSummary());
       this.setGraphic(hbox);
+      this.setTooltip(new Tooltip("Double click to view in editor"));
+    }
+  }
 
-      if (violation.getRuleDefinition() != null) {
-        this.ruleButton.setVisible(true);
-      }
+  /**
+   * Responsible for handling mouseClick events on the ListCell.
+   * Should show rule description (if any) in the overview window.
+   * Should also highlight the issue on double-click.
+   * 
+   * @param mouseEvent the MouseEvent emitted when a user clicks the cell.
+   */
+  private void handleMouseClick(MouseEvent mouseEvent) {
+    if (mouseEvent.getClickCount() == 2) {
+      // show the violation in the editor
+    } else {
+      // show the rule view (if any)
     }
   }
 }
