@@ -1,10 +1,16 @@
 package no.ntnu.iir.bluej.checkstyle.core.ui;
 
+import bluej.extensions2.BPackage;
+import bluej.extensions2.ProjectNotOpenException;
 import java.util.HashMap;
 import java.util.List;
+import javafx.beans.binding.Bindings;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -18,25 +24,50 @@ import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationListener;
  */
 public class AuditWindow extends Stage implements ViolationListener {
   private VBox vbox;
+  private String projectDirectory;
 
   /**
    * Constructs a new AuditWindow. 
    * 
    * @param windowTitle the Title of the Window.
    */
-  public AuditWindow(String windowTitle) {
+  public AuditWindow(
+      String windowTitle, 
+      BPackage bluePackage, 
+      String projectDirectory
+  ) throws ProjectNotOpenException {
     super();
 
-    this.setTitle(windowTitle);
+    this.projectDirectory = projectDirectory;
+
+    String formattedTitle = String.format(
+        "%s - %s", 
+        windowTitle, 
+        bluePackage.getProject().getName()
+    );
+
+    this.setTitle(formattedTitle);
     this.initScene();
   }
   
   private void initScene() {
-    ScrollPane scrollPane = new ScrollPane();
     this.vbox = new VBox();
-    scrollPane.setContent(this.vbox);
-    scrollPane.setFitToWidth(true);
-    Scene scene = new Scene(scrollPane, 600, 300);
+    this.vbox.getChildren().add(
+        new Label("No violations found in this project")
+    );
+
+    ScrollPane violationsPane = new ScrollPane();
+    violationsPane.setContent(this.vbox);
+    violationsPane.setFitToWidth(true);
+
+    ScrollPane rulePane = new ScrollPane();
+    rulePane.setContent(new Label("Rule descriptions go here"));
+
+    SplitPane splitPane = new SplitPane();
+    splitPane.setOrientation(Orientation.VERTICAL);
+    splitPane.getItems().addAll(violationsPane, rulePane);
+
+    Scene scene = new Scene(splitPane, 750, 500);
     this.setScene(scene);
   }
 
@@ -44,14 +75,22 @@ public class AuditWindow extends Stage implements ViolationListener {
   public void onViolationsChanged(HashMap<String, List<Violation>> violationsMap) {
     this.vbox.getChildren().clear();
     violationsMap.forEach((fileName, violations) -> {
-      ListView<Violation> violationList = new ListView<>();
-      violationList.setCellFactory(violation -> new ViolationCell());
+      // only add to window if it's source is from the correct project
+      if (fileName.startsWith(this.projectDirectory)) {
+        ListView<Violation> violationList = new ListView<>();
+        violationList.setCellFactory(violation -> new ViolationCell());
+  
+        violations.forEach(violationList.getItems()::add);
+  
+        // set list height to its estimated height to hide empty rows
+        violationList
+          .prefHeightProperty()
+          .bind(Bindings.size(violationList.getItems()).multiply(24));
 
-      violations.forEach(violationList.getItems()::add);
-
-      String paneTitle = String.format("%s (%s violations)", fileName, violations.size());
-      TitledPane pane = new TitledPane(paneTitle, violationList);
-      this.vbox.getChildren().add(pane);
+        String paneTitle = String.format("%s (%s violations)", fileName, violations.size());
+        TitledPane pane = new TitledPane(paneTitle, violationList);
+        this.vbox.getChildren().add(pane);
+      }
     });
   }
 }
