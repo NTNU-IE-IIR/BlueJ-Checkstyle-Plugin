@@ -25,6 +25,7 @@ import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationListener;
 public class AuditWindow extends Stage implements ViolationListener {
   private VBox vbox;
   private String projectDirectory;
+  private ScrollPane rulePane;
 
   /**
    * Constructs a new AuditWindow. 
@@ -60,12 +61,12 @@ public class AuditWindow extends Stage implements ViolationListener {
     violationsPane.setContent(this.vbox);
     violationsPane.setFitToWidth(true);
 
-    ScrollPane rulePane = new ScrollPane();
-    rulePane.setContent(new Label("Rule descriptions go here"));
+    this.rulePane = new ScrollPane();
+    this.rulePane.setContent(new Label("Select a rule to see it's explanation here..."));
 
     SplitPane splitPane = new SplitPane();
     splitPane.setOrientation(Orientation.VERTICAL);
-    splitPane.getItems().addAll(violationsPane, rulePane);
+    splitPane.getItems().addAll(violationsPane, this.rulePane);
 
     Scene scene = new Scene(splitPane, 750, 500);
     this.setScene(scene);
@@ -78,7 +79,7 @@ public class AuditWindow extends Stage implements ViolationListener {
       // only add to window if it's source is from the correct project
       if (fileName.startsWith(this.projectDirectory)) {
         ListView<Violation> violationList = new ListView<>();
-        violationList.setCellFactory(violation -> new ViolationCell());
+        violationList.setCellFactory(violation -> new ViolationCell(this.rulePane));
   
         violations.forEach(violationList.getItems()::add);
   

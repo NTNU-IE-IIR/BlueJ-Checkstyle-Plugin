@@ -3,9 +3,12 @@ package no.ntnu.iir.bluej.checkstyle.core.ui;
 import bluej.extensions2.editor.TextLocation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.web.WebView;
+import no.ntnu.iir.bluej.checkstyle.core.violations.RuleDefinition;
 import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 
 /**
@@ -18,15 +21,17 @@ public class ViolationCell extends ListCell<Violation> {
   private Label summaryLabel;
   private Label hintLabel;
   private Violation violation;
+  private ScrollPane rulePane;
 
   /**
    * Instantiates a new Violation Cell.
    */
-  public ViolationCell() {
+  public ViolationCell(ScrollPane rulePane) {
     super();
 
     this.summaryLabel = new Label();
     this.hintLabel = new Label();
+    this.rulePane = rulePane;
     
     hbox.getChildren().addAll(this.summaryLabel, hintLabel);
     hbox.setSpacing(2);
@@ -66,7 +71,25 @@ public class ViolationCell extends ListCell<Violation> {
     if (mouseEvent.getClickCount() == 2) {
       // show the violation in the editor
     } else {
-      // show the rule view (if any)
+      // render rule description if any
+      RuleDefinition definition = violation.getRuleDefinition();
+
+      if (definition == null) {
+        this.rulePane.setContent(
+            new Label("The selected violation does not have a rule description...")
+        );
+      } else {
+        // Render the description as HTML
+        WebView webView = new WebView();
+        webView.getEngine().loadContent(
+            definition.getDescription(),
+            "text/html"
+        );
+        // Bind width and height to parent ScrollPane
+        webView.prefWidthProperty().bind(this.rulePane.widthProperty());
+        webView.prefHeightProperty().bind(this.rulePane.heightProperty());
+        this.rulePane.setContent(webView);
+      }
     }
   }
 }
