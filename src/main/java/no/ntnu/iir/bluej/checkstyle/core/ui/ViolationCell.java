@@ -1,5 +1,6 @@
 package no.ntnu.iir.bluej.checkstyle.core.ui;
 
+import bluej.extensions2.BPackage;
 import bluej.extensions2.editor.TextLocation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -21,16 +22,21 @@ public class ViolationCell extends ListCell<Violation> {
   private Label summaryLabel;
   private Label hintLabel;
   private Violation violation;
+  private BPackage bluePackage;
   private ScrollPane rulePane;
 
   /**
    * Instantiates a new Violation Cell.
+   * 
+   * @param bluePackage the BPackage the violation was found in
+   * @param rulePane the Pane to display violation descriptions to
    */
-  public ViolationCell(ScrollPane rulePane) {
+  public ViolationCell(BPackage bluePackage, ScrollPane rulePane) {
     super();
 
     this.summaryLabel = new Label();
     this.hintLabel = new Label();
+    this.bluePackage = bluePackage;
     this.rulePane = rulePane;
     
     hbox.getChildren().addAll(this.summaryLabel, hintLabel);

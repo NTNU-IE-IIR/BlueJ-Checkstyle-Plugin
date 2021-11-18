@@ -24,6 +24,7 @@ import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationListener;
  */
 public class AuditWindow extends Stage implements ViolationListener {
   private VBox vbox;
+  private BPackage bluePackage;
   private String projectDirectory;
   private ScrollPane rulePane;
 
@@ -39,6 +40,7 @@ public class AuditWindow extends Stage implements ViolationListener {
   ) throws ProjectNotOpenException {
     super();
 
+    this.bluePackage = bluePackage;
     this.projectDirectory = projectDirectory;
 
     String formattedTitle = String.format(
@@ -79,7 +81,7 @@ public class AuditWindow extends Stage implements ViolationListener {
       // only add to window if it's source is from the correct project
       if (fileName.startsWith(this.projectDirectory)) {
         ListView<Violation> violationList = new ListView<>();
-        violationList.setCellFactory(violation -> new ViolationCell(this.rulePane));
+        violationList.setCellFactory(violation -> new ViolationCell(this.bluePackage, this.rulePane));
   
         violations.forEach(violationList.getItems()::add);
   
