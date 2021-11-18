@@ -1,5 +1,6 @@
 package no.ntnu.iir.bluej.checkstyle.core.ui;
 
+import bluej.extensions2.editor.TextLocation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tooltip;
@@ -15,6 +16,7 @@ import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 public class ViolationCell extends ListCell<Violation> {
   private HBox hbox = new HBox();
   private Label summaryLabel;
+  private Label hintLabel;
   private Violation violation;
 
   /**
@@ -24,9 +26,9 @@ public class ViolationCell extends ListCell<Violation> {
     super();
 
     this.summaryLabel = new Label();
-    // TODO: Add a violationHint that shows line and column numbers.
+    this.hintLabel = new Label();
     
-    hbox.getChildren().addAll(this.summaryLabel);
+    hbox.getChildren().addAll(this.summaryLabel, hintLabel);
     hbox.setSpacing(2);
     this.setOnMouseClicked(this::handleMouseClick);
   }
@@ -44,6 +46,10 @@ public class ViolationCell extends ListCell<Violation> {
     if (violation != null && !empty) {
       this.violation = violation;
       this.summaryLabel.setText(violation.getSummary());
+      TextLocation location = violation.getLocation();
+      this.hintLabel.setText(
+          String.format("[%s, %s]", location.getLine(), location.getColumn())
+      );
       this.setGraphic(hbox);
       this.setTooltip(new Tooltip("Double click to view in editor"));
     }
