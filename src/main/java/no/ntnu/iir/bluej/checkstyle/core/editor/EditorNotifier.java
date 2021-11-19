@@ -36,7 +36,7 @@ public class EditorNotifier {
       TextLocation textLocation
   ) throws ProjectNotOpenException, PackageNotFoundException {
     JavaEditor fileEditor = blueClass.getJavaEditor();
-    int lineLength = fileEditor.getLineLength(textLocation.getLine());
+    int lineLength = fileEditor.getLineLength(textLocation.getLine() - 1);
     fileEditor.setVisible(true);
     fileEditor.setSelection(
         textLocation,
