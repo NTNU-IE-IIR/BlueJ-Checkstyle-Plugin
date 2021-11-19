@@ -60,7 +60,7 @@ public class EditorNotifier {
     javaEditor.setVisible(true);
     Editor editor = EditorBridge.getJavaEditor(javaEditor);
     TextLocation textLocation = violation.getLocation();
-    int lineLength = javaEditor.getLineLength(textLocation.getLine());
+    int lineLength = javaEditor.getLineLength(textLocation.getLine() - 1);
 
     // TODO: Check effect of identifier
     Diagnostic diagnosticMessage = new Diagnostic(
