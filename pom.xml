@@ -44,6 +44,22 @@
       <version>5.0.2</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>bluej</groupId>
+      <artifactId>bluejeditor</artifactId>
+      <type>jar</type>
+      <version>5.0.2</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>bluej</groupId>
+      <artifactId>bluejcore</artifactId>
+      <type>jar</type>
+      <version>5.0.2</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
