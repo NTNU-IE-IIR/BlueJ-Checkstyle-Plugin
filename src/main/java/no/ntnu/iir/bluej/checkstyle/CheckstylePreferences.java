@@ -19,6 +19,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
 
+/**
+ * Represents a Preferences class.
+ * Responsible for loading and saving preferences utilizing BlueJ internals.
+ * Also responsible for generating the configuration options in the Preferences tab in BlueJ.
+ */
 public class CheckstylePreferences implements PreferenceGenerator {
   private BlueJ blueJ;
   private GridPane pane;
@@ -88,6 +93,11 @@ public class CheckstylePreferences implements PreferenceGenerator {
 
   }
 
+  /**
+   * Returns the Window that should be rendered to the BlueJ preferences.
+   * 
+   * @return the Window that should be rendered to the BlueJ preferences
+   */
   @Override
   public Pane getWindow() {
     return this.pane;
@@ -131,6 +141,9 @@ public class CheckstylePreferences implements PreferenceGenerator {
     );
   }
 
+  /**
+   * Configures the CheckerService to use the user defined preferences.
+   */
   private void configureCheckerService() {
     String configUri = "";
 
@@ -150,6 +163,12 @@ public class CheckstylePreferences implements PreferenceGenerator {
     }
   }
 
+  /**
+   * Handles toggle events for the useProvidedCheckBox.
+   * Disables inputs based on the selection state.
+   * 
+   * @param event the event that caused this method to be called
+   */
   private void onUseProvidedToggle(ActionEvent event) {
     if (useProvidedCheckBox.isSelected()) {
       this.providedConfigList.setDisable(false);
@@ -162,6 +181,13 @@ public class CheckstylePreferences implements PreferenceGenerator {
     }
   }
 
+  /**
+   * Handles click events for the browseConfigPathButton.
+   * Shows a FileChooser, and sets the textInput to the files path.
+   * If a file was not chosen, it ignores setting the value.
+   * 
+   * @param event the event that caused this method to be called 
+   */
   private void onBrowseConfigPath(ActionEvent event) {
     FileChooser fileChooser = new FileChooser();
     ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
