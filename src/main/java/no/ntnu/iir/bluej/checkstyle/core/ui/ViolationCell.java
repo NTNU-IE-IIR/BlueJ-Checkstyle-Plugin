@@ -1,10 +1,8 @@
 package no.ntnu.iir.bluej.checkstyle.core.ui;
 
-import bluej.extensions2.BPackage;
 import bluej.extensions2.editor.TextLocation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -22,22 +20,19 @@ public class ViolationCell extends ListCell<Violation> {
   private Label summaryLabel;
   private Label hintLabel;
   private Violation violation;
-  private BPackage bluePackage;
-  private ScrollPane rulePane;
+  private WebView ruleWebView;
 
   /**
    * Instantiates a new Violation Cell.
    * 
-   * @param bluePackage the BPackage the violation was found in
-   * @param rulePane the Pane to display violation descriptions to
+   * @param ruleWebView the WebView to display a violations rule description to
    */
-  public ViolationCell(BPackage bluePackage, ScrollPane rulePane) {
+  public ViolationCell(WebView ruleWebView) {
     super();
 
     this.summaryLabel = new Label();
     this.hintLabel = new Label();
-    this.bluePackage = bluePackage;
-    this.rulePane = rulePane;
+    this.ruleWebView = ruleWebView;
     
     hbox.getChildren().addAll(this.summaryLabel, hintLabel);
     hbox.setSpacing(2);
@@ -58,6 +53,7 @@ public class ViolationCell extends ListCell<Violation> {
       this.violation = violation;
       this.summaryLabel.setText(violation.getSummary());
       TextLocation location = violation.getLocation();
+      this.hintLabel.setOpacity(0.75);
       this.hintLabel.setText(
           String.format("[%s, %s]", location.getLine(), location.getColumn())
       );
@@ -81,20 +77,14 @@ public class ViolationCell extends ListCell<Violation> {
       RuleDefinition definition = violation.getRuleDefinition();
 
       if (definition == null) {
-        this.rulePane.setContent(
-            new Label("The selected violation does not have a rule description...")
+        this.ruleWebView.getEngine().loadContent(
+            "The selected violation does not have a rule description..."
         );
       } else {
-        // Render the description as HTML
-        WebView webView = new WebView();
-        webView.getEngine().loadContent(
+        ruleWebView.getEngine().loadContent(
             definition.getDescription(),
             "text/html"
         );
-        // Bind width and height to parent ScrollPane
-        webView.prefWidthProperty().bind(this.rulePane.widthProperty());
-        webView.prefHeightProperty().bind(this.rulePane.heightProperty());
-        this.rulePane.setContent(webView);
       }
     }
   }
