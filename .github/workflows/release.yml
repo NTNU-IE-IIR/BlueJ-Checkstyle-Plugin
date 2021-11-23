@@ -47,19 +47,3 @@ jobs:
           name: Release version ${{ env.RELEASE_VERSION }}
           body: "**Changes:**"
           files: ./target/*-${{ env.RELEASE_VERSION }}.jar
-
-  create-pull-request:
-    runs-on: ubuntu-latest
-    needs: create-release
-
-    steps:
-      - name: Git Checkout
-        uses: actions/checkout@v2
-
-      - name: Create Pull Request to merge into develop
-        uses: peter-evans/create-pull-request@v3
-        with:
-          branch: main
-          base: develop
-          title: Merge main back into develop
-          body: Merge main back into develop after releasing version ${{ env.RELEASE_VERSION }}.
