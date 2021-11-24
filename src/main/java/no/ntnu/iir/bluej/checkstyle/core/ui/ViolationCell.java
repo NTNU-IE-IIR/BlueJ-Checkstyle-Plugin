@@ -7,6 +7,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.WebView;
+import no.ntnu.iir.bluej.checkstyle.core.editor.EditorNotifier;
 import no.ntnu.iir.bluej.checkstyle.core.violations.RuleDefinition;
 import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 
@@ -70,21 +71,28 @@ public class ViolationCell extends ListCell<Violation> {
    * @param mouseEvent the MouseEvent emitted when a user clicks the cell.
    */
   private void handleMouseClick(MouseEvent mouseEvent) {
-    if (mouseEvent.getClickCount() == 2) {
-      // show the violation in the editor
-    } else {
-      // render rule description if any
-      RuleDefinition definition = violation.getRuleDefinition();
-
-      if (definition == null) {
-        this.ruleWebView.getEngine().loadContent(
-            "The selected violation does not have a rule description..."
-        );
+    // only handle clicks where a cell has content.
+    if (violation != null) {      
+      if (mouseEvent.getClickCount() == 2) {
+        try {
+          EditorNotifier.highlightLine(violation);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       } else {
-        ruleWebView.getEngine().loadContent(
-            definition.getDescription(),
-            "text/html"
-        );
+        // render rule description if any
+        RuleDefinition definition = violation.getRuleDefinition();
+  
+        if (definition == null) {
+          this.ruleWebView.getEngine().loadContent(
+              "The selected violation does not have a rule description..."
+          );
+        } else {
+          ruleWebView.getEngine().loadContent(
+              definition.getDescription(),
+              "text/html"
+          );
+        }
       }
     }
   }
