@@ -25,22 +25,26 @@ public class EditorNotifier {
    * Fetches the JavaEditor proxy or opens a new one.
    * Sets the JavaEditor to be visible, and then sets the selection.
    * 
-   * @param blueClass the BClass to fetch the JavaEditor proxy object from
-   * @param textLocation the TextLocation of where to highlight
+   * @param violation the source violation to highlight in the editor
    * 
    * @throws ProjectNotOpenException if the BCLass' project was not open
    * @throws PackageNotFoundException if the BClass' package was not found
    */
   public static void highlightLine(
-      BClass blueClass, 
-      TextLocation textLocation
+      Violation violation
   ) throws ProjectNotOpenException, PackageNotFoundException {
+    BClass blueClass = violation.getBClass();
+    TextLocation textLocation = violation.getLocation();
     JavaEditor fileEditor = blueClass.getJavaEditor();
+
+    int lineNumber = textLocation.getLine() - 1;
     int lineLength = fileEditor.getLineLength(textLocation.getLine() - 1);
+    int startColumn = (textLocation.getColumn() > 0) ? textLocation.getColumn() - 1 : 1;
+
     fileEditor.setVisible(true);
     fileEditor.setSelection(
-        textLocation,
-        new TextLocation(textLocation.getLine(), lineLength)
+        new TextLocation(lineNumber, startColumn),
+        new TextLocation(lineNumber, lineLength)
     );
   }
 
@@ -49,17 +53,17 @@ public class EditorNotifier {
    * Uses the EditorBridge to get Editor from JavaEditor proxy object.
    * Utilizes the Editor object to show a Diagnostic message to the user.
    * 
-   * @param blueClass the BClass to fetch the JavaEditor proxy object from
    * @param violation the Violation to show diagnostic message about
    */
   public static void showDiagnostic(
-      BClass blueClass, 
       Violation violation
   ) throws ProjectNotOpenException, PackageNotFoundException {
+    BClass blueClass = violation.getBClass();
     JavaEditor javaEditor = blueClass.getJavaEditor();
-    javaEditor.setVisible(true);
     Editor editor = EditorBridge.getJavaEditor(javaEditor);
     TextLocation textLocation = violation.getLocation();
+    int startLine = (textLocation.getLine() > 0) ? textLocation.getLine() : 1;      
+    int startColumn = (textLocation.getColumn() > 0) ? textLocation.getColumn() : 1;
     int lineLength = javaEditor.getLineLength(textLocation.getLine() - 1);
 
     // TODO: Check effect of identifier
@@ -67,9 +71,9 @@ public class EditorNotifier {
         1,                                      // type
         violation.getSummary(),                 // message
         violation.getFile().getName(),          // fileName
-        Long.valueOf(textLocation.getLine()),   // startLine
-        Long.valueOf(textLocation.getColumn()), // startColumn
-        Long.valueOf(textLocation.getLine()),   // endLine
+        Long.valueOf(startLine),                // startLine
+        Long.valueOf(startColumn),              // startColumn
+        Long.valueOf(startLine),                // endLine
         Long.valueOf(lineLength),               // endColumn
         DiagnosticOrigin.UNKNOWN,               // origin
         1                                       // identifier
