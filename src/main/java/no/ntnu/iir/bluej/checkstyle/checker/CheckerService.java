@@ -30,6 +30,8 @@ public class CheckerService {
   /**
    * Configures Checkstyle to use given configuration.
    * 
+   * @param configPath the path to the configuration file to use
+   * 
    * @throws CheckstyleException if an error condition within Checkstyle occurs.
    */
   public void setConfiguration(String configPath) throws CheckstyleException {
