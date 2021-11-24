@@ -19,8 +19,8 @@ public class PackageEventHandler implements PackageListener {
   /**
    * Instantiates a new handler for Package events.
    * 
-   * @param windowTitlePrefix the title prefix of audit windows spawned.
-   * @param violationManager the ViolationManager for windows to subscribe to.
+   * @param windowTitlePrefix the title prefix of audit windows spawned
+   * @param violationManager the ViolationManager for windows to subscribe to
    */
   public PackageEventHandler(String windowTitlePrefix, ViolationManager violationManager) {
     this.projectWindowMap = new HashMap<>();
@@ -36,6 +36,7 @@ public class PackageEventHandler implements PackageListener {
   public void packageClosing(PackageEvent packageEvent) {
     try {
       String packagePath = packageEvent.getPackage().getDir().getPath();
+      this.violationManager.removeBluePackage(packageEvent.getPackage());
       AuditWindow projectWindow = this.projectWindowMap.get(packagePath);
       if (projectWindow != null && projectWindow.isShowing()) {
         this.violationManager.removeListener(projectWindow);
@@ -60,8 +61,11 @@ public class PackageEventHandler implements PackageListener {
           packageEvent.getPackage(), 
           packagePath
       );
+      
+      this.violationManager.addBluePackage(packageEvent.getPackage());
       this.violationManager.addListener(projectWindow);
       this.projectWindowMap.put(packagePath, projectWindow);
+
       projectWindow.show();
 
       // TODO: Call a check on all files in the opened project
