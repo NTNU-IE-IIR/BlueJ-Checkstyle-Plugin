@@ -10,12 +10,13 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
+import no.ntnu.iir.bluej.checkstyle.core.checker.ICheckerService;
 
 /**
  * Represents a Checker service.
  * Responsible for handling requests to check files using a Checkstyle checker.
  */
-public class CheckerService {
+public class CheckerService implements ICheckerService {
   private Checker checker;
 
   /**
