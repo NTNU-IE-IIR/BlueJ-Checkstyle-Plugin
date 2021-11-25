@@ -20,7 +20,8 @@ public class CheckstyleExtension extends Extension {
     ViolationManager violationManager = new ViolationManager();
     PackageEventHandler packageEventHandler = new PackageEventHandler(
         this.getName(),
-        violationManager
+        violationManager,
+        checkerService
     );
 
     CheckerListener checkerListener = new CheckerListener(violationManager);
@@ -34,6 +35,9 @@ public class CheckstyleExtension extends Extension {
 
     blueJ.addClassListener(filesChangeHandler);
     blueJ.addPackageListener(packageEventHandler);
+    blueJ.setPreferenceGenerator(
+        new CheckstylePreferences(blueJ, checkerService, violationManager)
+    );
   }
 
   @Override
