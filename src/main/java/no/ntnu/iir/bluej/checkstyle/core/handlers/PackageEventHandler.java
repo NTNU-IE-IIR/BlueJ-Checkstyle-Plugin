@@ -1,8 +1,14 @@
 package no.ntnu.iir.bluej.checkstyle.core.handlers;
 
+import bluej.extensions2.BClass;
+import bluej.extensions2.BPackage;
 import bluej.extensions2.event.PackageEvent;
 import bluej.extensions2.event.PackageListener;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import no.ntnu.iir.bluej.checkstyle.core.checker.ICheckerService;
 import no.ntnu.iir.bluej.checkstyle.core.ui.AuditWindow;
 import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
@@ -15,17 +21,24 @@ public class PackageEventHandler implements PackageListener {
   private HashMap<String, AuditWindow> projectWindowMap;
   private String windowTitlePrefix;
   private ViolationManager violationManager;
+  private ICheckerService checkerService;
 
   /**
    * Instantiates a new handler for Package events.
    * 
    * @param windowTitlePrefix the title prefix of audit windows spawned
    * @param violationManager the ViolationManager for windows to subscribe to
+   * @param checkerService the CheckerService to use for checking files when a package opens
    */
-  public PackageEventHandler(String windowTitlePrefix, ViolationManager violationManager) {
+  public PackageEventHandler(
+      String windowTitlePrefix, 
+      ViolationManager violationManager, 
+      ICheckerService checkerService
+  ) {
     this.projectWindowMap = new HashMap<>();
     this.windowTitlePrefix = windowTitlePrefix;
     this.violationManager = violationManager;
+    this.checkerService = checkerService;
   }
 
   /**
@@ -44,8 +57,7 @@ public class PackageEventHandler implements PackageListener {
         projectWindow.close();
       }
     } catch (Exception e) {
-      // TODO: Proper Exception handling should be done here
-      e.printStackTrace();
+      // should never happen, package/project should be open when this is called by BlueJ    
     }
   }
 
@@ -65,13 +77,30 @@ public class PackageEventHandler implements PackageListener {
       this.violationManager.addBluePackage(packageEvent.getPackage());
       this.violationManager.addListener(projectWindow);
       this.projectWindowMap.put(packagePath, projectWindow);
+      this.checkAllPackageFiles(packageEvent.getPackage());
 
       projectWindow.show();
 
-      // TODO: Call a check on all files in the opened project
     } catch (Exception e) {
-      // TODO: Proper Exception handling should be done here
-      e.printStackTrace();
+      // should never happen, package/project should be open when this is called by BlueJ
+    }
+  }
+
+  private void checkAllPackageFiles(BPackage bluePackage) {
+    try {
+      BClass[] classes = bluePackage.getClasses();
+      List<File> filesToCheck = new ArrayList<>();
+      
+      for (int i = 0; i < classes.length; i++) {
+        // only check compiled files
+        if (classes[i].isCompiled()) {
+          filesToCheck.add(classes[i].getJavaFile());
+        }
+      }
+
+      this.checkerService.checkFiles(filesToCheck, "utf-8");
+    } catch (Exception e) {
+      // should never happen, package/project should be open when this is called by BlueJ
     }
   }
 }
