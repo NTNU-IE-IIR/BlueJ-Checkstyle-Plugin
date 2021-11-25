@@ -1,17 +1,23 @@
 package no.ntnu.iir.bluej.checkstyle.core.violations;
 
+import bluej.extensions2.BClass;
+import bluej.extensions2.BPackage;
+import bluej.extensions2.PackageNotFoundException;
+import bluej.extensions2.ProjectNotOpenException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * Represents a Violation manager.
- * Responsible for managing violations and notifying listeners
- * when violations change.
+ * Responsible for managing violations and notifying listeners when violations change. 
+ * Also handles mapping between file paths and BlueJ Class instances.
  */
 public class ViolationManager {
   private List<ViolationListener> listeners;
   private HashMap<String, List<Violation>> violations;
+  private List<BPackage> bluePackages;
+  private HashMap<String, BClass> blueClassMap;
 
   /**
    * Constructs a new Violation manager.
@@ -19,6 +25,8 @@ public class ViolationManager {
   public ViolationManager() {
     this.listeners = new ArrayList<>();
     this.violations = new HashMap<>();
+    this.bluePackages = new ArrayList<>();
+    this.blueClassMap = new HashMap<>();
   }
 
   /**
@@ -88,5 +96,50 @@ public class ViolationManager {
    */
   private void notifyListeners() {
     this.listeners.forEach(listener -> listener.onViolationsChanged(this.violations));
+  }
+
+  /**
+   * Adds a BlueJ package to the list of packages to sync file names and BlueJ classes from. 
+   * 
+   * @param bluePackage the BlueJ Package to add to the list of packages
+   */
+  public void addBluePackage(BPackage bluePackage) {
+    this.bluePackages.add(bluePackage);
+  }
+
+  /**
+   * Removes a BlueJ Package from the list of packages to sync files names and BlueJ classes from.
+   * 
+   * @param bluePackage the BlueJ Package to remove from the list of packages
+   */
+  public void removeBluePackage(BPackage bluePackage) {
+    this.bluePackages.remove(bluePackage);
+  }
+
+  /**
+   * Synchronizes the blueClassMap with the BClasses in the current package.
+   * 
+   * @throws ProjectNotOpenException if the BlueJ project was not opened
+   * @throws PackageNotFoundException if the Package was not found
+   */
+  public void syncBlueClassMap() throws ProjectNotOpenException, PackageNotFoundException {
+    for (BPackage bluePackage : this.bluePackages) {
+      BClass[] blueClasses = bluePackage.getClasses();
+      for (BClass blueClass : blueClasses) {
+        String filePath = blueClass.getJavaFile().getPath();
+        this.blueClassMap.put(filePath, blueClass);
+      }
+    }
+  }
+
+  /**
+   * Gets a BlueJ Class instance from a files path.
+   * 
+   * @param filePath the path of the file to find a BlueJ Class from
+   * 
+   * @return the found BlueJ Class instance or null
+   */
+  public BClass getBlueClass(String filePath) {
+    return this.blueClassMap.get(filePath);
   }
 }

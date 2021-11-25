@@ -1,5 +1,8 @@
 package no.ntnu.iir.bluej.checkstyle.core.violations;
 
+import bluej.extensions2.BClass;
+import bluej.extensions2.PackageNotFoundException;
+import bluej.extensions2.ProjectNotOpenException;
 import bluej.extensions2.editor.TextLocation;
 import java.io.File;
 
@@ -11,7 +14,7 @@ import java.io.File;
  */
 public class Violation {
   private String summary;
-  private File file;
+  private BClass blueClass;
   private TextLocation location;
   private RuleDefinition ruleDefinition;
 
@@ -19,12 +22,12 @@ public class Violation {
    * Constructs a new Violation without a RuleDefinition.
    * 
    * @param summary a String containing a brief explanation of the violation
-   * @param file the File where the violation was found
+   * @param blueClass the BlueJ Class file where the violation was found
    * @param location the TextLocation where the violation was found in the file
    */
-  public Violation(String summary, File file, TextLocation location) {
+  public Violation(String summary, BClass blueClass, TextLocation location) {
     this.summary = summary;
-    this.file = file;
+    this.blueClass = blueClass;
     this.location = location;
   }
 
@@ -32,18 +35,18 @@ public class Violation {
    * Constructs a new Violation with a RuleDefinition.
    * 
    * @param summary a String containing a brief explanation of the violation
-   * @param file the File where the violation was found
+   * @param blueClass the BlueJ Class file where the violation was found
    * @param location the TextLocation where the violation was found in the file
    * @param ruleDefinition a RuleDefinition containing a description of the violated rule
    */
   public Violation(
       String summary, 
-      File file, 
+      BClass blueClass, 
       TextLocation location, 
       RuleDefinition ruleDefinition
   ) {
     this.summary = summary;
-    this.file = file;
+    this.blueClass = blueClass;
     this.location = location;
     this.ruleDefinition = ruleDefinition;
   }
@@ -58,18 +61,27 @@ public class Violation {
   }
 
   /**
+   * Returns the BlueJ Class instance where the violation was found. 
+   * 
+   * @return the BlueJ Class instance where the violation was found
+   */
+  public BClass getBClass() {
+    return this.blueClass;
+  }
+
+  /**
    * Returns the file where the violation was found.
    * 
-   * @return the File where the violation was found.
+   * @return the File where the violation was found
    */
-  public File getFile() {
-    return file;
+  public File getFile() throws ProjectNotOpenException, PackageNotFoundException {
+    return this.blueClass.getJavaFile();
   }
 
   /**
    * Returns the TextLocation of where the violation was found in the file.
    * 
-   * @return the TextLocation where the violation was found in the file.
+   * @return the TextLocation where the violation was found in the file
    */
   public TextLocation getLocation() {
     return location;
@@ -79,7 +91,7 @@ public class Violation {
   /**
    * Returns the RuleDefinition of the violated rule.
    * 
-   * @return the RuleDefinition of the violated rule.
+   * @return the RuleDefinition of the violated rule
    */
   public RuleDefinition getRuleDefinition() {
     return ruleDefinition;

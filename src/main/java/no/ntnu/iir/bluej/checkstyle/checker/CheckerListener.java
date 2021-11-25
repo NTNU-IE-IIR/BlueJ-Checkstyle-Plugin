@@ -1,11 +1,13 @@
 package no.ntnu.iir.bluej.checkstyle.checker;
 
+import bluej.extensions2.BClass;
 import bluej.extensions2.editor.TextLocation;
 import com.puppycrawl.tools.checkstyle.api.AuditEvent;
 import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import no.ntnu.iir.bluej.checkstyle.core.editor.EditorNotifier;
 import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
@@ -29,19 +31,27 @@ public class CheckerListener implements AuditListener {
   public void addError(AuditEvent auditEvent) {
     String fileName = auditEvent.getFileName();
     File file = new File(fileName);
+    BClass sourceBClass = this.violationManager.getBlueClass(file.getPath());
     Violation violation = new Violation(
         auditEvent.getMessage(), 
-        file, 
+        sourceBClass, 
         new TextLocation(auditEvent.getLine(), auditEvent.getColumn())
     );
 
-    List<Violation> violations = violationManager.getViolations(file.getName());
+    List<Violation> violations = violationManager.getViolations(fileName);
     if (violations != null) {
       violations.add(violation);
+      violationManager.setViolations(fileName, violations);
     } else {
       ArrayList<Violation> violationList = new ArrayList<>();
       violationList.add(violation);
       violationManager.addViolations(fileName, violationList);
+    }
+
+    try {
+      EditorNotifier.showDiagnostic(violation);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
@@ -57,7 +67,11 @@ public class CheckerListener implements AuditListener {
 
   @Override
   public void auditStarted(AuditEvent auditEvent) {
-    // do nothing
+    try {
+      this.violationManager.syncBlueClassMap();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
