@@ -6,7 +6,6 @@ import com.puppycrawl.tools.checkstyle.PropertiesExpander;
 import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
@@ -26,26 +25,19 @@ public class CheckerService {
     
     this.checker.setBasedir(null);
     this.checker.setModuleClassLoader(Checker.class.getClassLoader());
-    try {
-      this.setConfiguration();
-    } catch (Exception e) {
-      // TODO: Show error message/dialog to the user to let them know something is wrong
-      // Likely caused by a faulty config file used
-      e.printStackTrace();
-    }
   }
 
   /**
    * Configures Checkstyle to use given configuration.
-   * TODO: Read Configuration from BlueJ preferences.
    * 
-   * @throws IOException if an error reading the configuration file occurs.
+   * @param configPath the path to the configuration file to use
+   * 
    * @throws CheckstyleException if an error condition within Checkstyle occurs.
    */
-  public void setConfiguration() throws IOException, CheckstyleException {
+  public void setConfiguration(String configPath) throws CheckstyleException {
     Properties checkstyleProperties = new Properties();
     this.checker.configure(ConfigurationLoader.loadConfiguration(
-        this.getClass().getClassLoader().getResource("config/google_checks.xml").toString(),
+        configPath,
         new PropertiesExpander(checkstyleProperties)
     ));
   }
