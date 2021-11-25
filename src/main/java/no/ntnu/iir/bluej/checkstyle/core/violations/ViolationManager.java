@@ -74,6 +74,14 @@ public class ViolationManager {
   }
 
   /**
+   * Clears violations for all files and notifies the listeners of the change.
+   */
+  public void clearViolations() {
+    this.violations.clear();
+    this.notifyListeners();
+  }
+
+  /**
    * Adds a new listener to the list of listeners.
    * 
    * @param listener a ViolationListener to add to the list of listeners.
