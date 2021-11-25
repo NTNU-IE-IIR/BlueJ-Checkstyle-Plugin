@@ -31,8 +31,8 @@ public class FilesChangeHandler implements ClassListener {
     try {
       this.checkerService.checkFile(blueClass.getJavaFile(), "utf-8");
     } catch (Exception e) {
-      // TODO: Show error message/dialog to the user to let them know something is wrong.
-      e.printStackTrace();
+      // this should never happen, BlueJ project/package has to be existant
+      // in order for BlueJ to trigger the events that uses this method.
     }
   }
 
