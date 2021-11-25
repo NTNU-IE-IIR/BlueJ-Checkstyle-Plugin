@@ -10,8 +10,8 @@ import java.util.List;
 
 /**
  * Represents a Violation manager.
- * Responsible for managing violations and notifying listeners
- * when violations change.
+ * Responsible for managing violations and notifying listeners when violations change. 
+ * Also handles mapping between file paths and BlueJ Class instances.
  */
 public class ViolationManager {
   private List<ViolationListener> listeners;
@@ -132,6 +132,13 @@ public class ViolationManager {
     }
   }
 
+  /**
+   * Gets a BlueJ Class instance from a files path.
+   * 
+   * @param filePath the path of the file to find a BlueJ Class from
+   * 
+   * @return the found BlueJ Class instance or null
+   */
   public BClass getBlueClass(String filePath) {
     return this.blueClassMap.get(filePath);
   }
