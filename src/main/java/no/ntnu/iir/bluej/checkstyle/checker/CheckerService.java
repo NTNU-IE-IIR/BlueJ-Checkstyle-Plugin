@@ -17,15 +17,31 @@ import no.ntnu.iir.bluej.checkstyle.core.checker.ICheckerService;
  */
 public class CheckerService implements ICheckerService {
   private Checker checker;
+  private boolean enabled;
 
   /**
    * Constructs a new CheckerService.
    */
   public CheckerService() {
     this.checker = new Checker();
-    
+    this.enabled = false;
     this.checker.setBasedir(null);
     this.checker.setModuleClassLoader(Checker.class.getClassLoader());
+  }
+
+  @Override
+  public void enable() {
+    this.enabled = true;
+  }
+
+  @Override
+  public void disable() {
+    this.enabled = false;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return this.enabled;
   }
 
   /**
@@ -74,8 +90,10 @@ public class CheckerService implements ICheckerService {
       File fileToCheck,
       String charset
   ) throws UnsupportedEncodingException, CheckstyleException {
-    this.checker.setCharset(charset);
-    this.checker.process(List.of(fileToCheck));
+    if (this.enabled) {
+      this.checker.setCharset(charset);
+      this.checker.process(List.of(fileToCheck));
+    }
   }
 
   /**
@@ -91,7 +109,9 @@ public class CheckerService implements ICheckerService {
       List<File> filesToCheck, 
       String charset
   ) throws UnsupportedEncodingException, CheckstyleException {
-    this.checker.setCharset(charset);
-    this.checker.process(filesToCheck);
+    if (this.enabled) {
+      this.checker.setCharset(charset);
+      this.checker.process(filesToCheck);
+    }
   }
 }

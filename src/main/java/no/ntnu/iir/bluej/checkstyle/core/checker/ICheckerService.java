@@ -8,6 +8,13 @@ import java.util.List;
  * Classes responsible for triggering file checks should implement this.
  */
 public interface ICheckerService {
+
+  void enable();
+
+  void disable();
+
+  boolean isEnabled();
+
   /**
    * Checks a single file.
    * 
