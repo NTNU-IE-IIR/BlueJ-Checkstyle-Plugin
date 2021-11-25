@@ -18,6 +18,8 @@ import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
+import no.ntnu.iir.bluej.checkstyle.core.ui.ErrorDialog;
+import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
 /**
  * Represents a Preferences class.
@@ -26,8 +28,9 @@ import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
  */
 public class CheckstylePreferences implements PreferenceGenerator {
   private BlueJ blueJ;
-  private GridPane pane;
   private CheckerService checkerService;
+  private ViolationManager violationManager;
+  private GridPane pane;
   private CheckBox useProvidedCheckBox;
   private ComboBox<String> providedConfigList;
   private HashMap<String, String> providedConfigs;
@@ -44,9 +47,14 @@ public class CheckstylePreferences implements PreferenceGenerator {
    * @param blueJ the BlueJ instance to load and save preferences to
    * @param checkerService the CheckerService instance to configure on save
    */
-  public CheckstylePreferences(BlueJ blueJ, CheckerService checkerService) {
+  public CheckstylePreferences(
+      BlueJ blueJ, 
+      CheckerService checkerService, 
+      ViolationManager violationManager
+  ) {
     this.blueJ = blueJ;
     this.checkerService = checkerService;
+    this.violationManager = violationManager;
     this.providedConfigs = new HashMap<>();
     this.providedConfigs.put("Google", "config/google_checks.xml");
     this.providedConfigs.put("Sun", "config/sun_checks.xml");
@@ -155,11 +163,18 @@ public class CheckstylePreferences implements PreferenceGenerator {
       configUri = this.customConfigPath.getText();  
     }
 
+    this.violationManager.clearViolations();
+
     try {
       this.checkerService.setConfiguration(configUri);
+      this.checkerService.enable();
     } catch (CheckstyleException e) {
-      // TODO: Show a dialog telling the user that the config file does not exist.
-      System.out.println("unable to open file");
+      this.checkerService.disable();
+      ErrorDialog errorDialog = new ErrorDialog(
+          "The set Checkstyle configuration was invalid...",
+          e.getMessage()
+      );
+      errorDialog.show();
     }
   }
 
