@@ -1,5 +1,6 @@
 mvn clean verify;
 
 $InstallDir = "C:\Program Files\BlueJ";
+$JarArtifact = Get-ChildItem -Path "$PSScriptRoot\..\target" | Where-Object {($_.FullName -like "*.jar") -and ($_.FullName -notlike "*-original.jar")};
 
-Copy-Item -Path "$PSScriptRoot\..\target\checkstyle4bluej-1.0-SNAPSHOT.jar" -Destination "$InstallDir\lib\extensions2\";
+Copy-Item -Path $JarArtifact -Destination "$InstallDir\lib\extensions2\";
