@@ -125,6 +125,15 @@ public class ViolationManager {
   }
 
   /**
+   * Returns the list of packages currently managed by this ViolationManager.
+   * 
+   * @return the list of packages currently managed by this ViolationManager
+   */
+  public List<BPackage> getBluePackages() {
+    return List.copyOf(this.bluePackages);
+  }
+
+  /**
    * Synchronizes the blueClassMap with the BClasses in the current package.
    * 
    * @throws ProjectNotOpenException if the BlueJ project was not opened

@@ -1,10 +1,14 @@
 package no.ntnu.iir.bluej.checkstyle;
 
+import bluej.extensions2.BPackage;
 import bluej.extensions2.BlueJ;
 import bluej.extensions2.PreferenceGenerator;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -168,13 +172,47 @@ public class CheckstylePreferences implements PreferenceGenerator {
     try {
       this.checkerService.setConfiguration(configUri);
       this.checkerService.enable();
+      this.checkAllPackagesOpen();
     } catch (CheckstyleException e) {
       this.checkerService.disable();
       ErrorDialog errorDialog = new ErrorDialog(
-          "The set Checkstyle configuration was invalid...",
-          e.getMessage()
+          "The set Checkstyle configuration was invalid, checking is disabled.",
+          "Disabled checking to prevent errors.\n" + e.getMessage()
       );
       errorDialog.show();
+    }
+  }
+
+  /**
+   * Handles checking all the open packages/projects.
+   */
+  private void checkAllPackagesOpen() {
+    try {
+      List<BPackage> bluePackages = this.violationManager.getBluePackages();
+      this.violationManager.clearViolations();
+      for (BPackage bluePackage : bluePackages) {
+        List<File> filesToCheck = List.of(bluePackage.getClasses())
+            .stream()
+            .map(blueClass -> {
+              File sourceFile = null;
+
+              try {
+                if (blueClass.isCompiled()) {
+                  sourceFile = blueClass.getJavaFile();
+                }
+              } catch (Exception e) {
+                // ignore
+              }
+
+              return sourceFile;
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+        this.checkerService.checkFiles(filesToCheck, "utf-8");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
