@@ -66,26 +66,45 @@ public class PackageEventHandler implements PackageListener {
    */
   @Override
   public void packageOpened(PackageEvent packageEvent) {
+    this.openProjectWindow(packageEvent.getPackage());
+  }
+
+  /**
+   * Opens a new AuditWindow for a Project.
+   * 
+   * @param bluePackage the package to open a window for
+   */
+  public void openProjectWindow(BPackage bluePackage) {
     try {
-      String packagePath = packageEvent.getPackage().getDir().getPath();
-      AuditWindow projectWindow = new AuditWindow(
-          windowTitlePrefix, 
-          packageEvent.getPackage(), 
-          packagePath
-      );
-      
-      this.violationManager.addBluePackage(packageEvent.getPackage());
-      this.violationManager.addListener(projectWindow);
-      this.projectWindowMap.put(packagePath, projectWindow);
-      this.checkAllPackageFiles(packageEvent.getPackage());
+      String packagePath = bluePackage.getDir().getPath();
+      AuditWindow projectWindow = projectWindowMap.get(packagePath);
+
+      if (projectWindow == null) {
+        projectWindow = new AuditWindow(
+            windowTitlePrefix, 
+            bluePackage, 
+            packagePath
+        );
+        
+        this.violationManager.addBluePackage(bluePackage);
+        this.violationManager.addListener(projectWindow);
+        this.projectWindowMap.put(packagePath, projectWindow);
+        this.checkAllPackageFiles(bluePackage);
+      }
 
       projectWindow.show();
-
+      projectWindow.requestFocus();
+      
     } catch (Exception e) {
       // should never happen, package/project should be open when this is called by BlueJ
     }
   }
 
+  /**
+   * Runs a check on all the files in a BlueJ Package/Project.
+   * 
+   * @param bluePackage the BlueJ package to run checks in
+   */
   private void checkAllPackageFiles(BPackage bluePackage) {
     try {
       BClass[] classes = bluePackage.getClasses();
