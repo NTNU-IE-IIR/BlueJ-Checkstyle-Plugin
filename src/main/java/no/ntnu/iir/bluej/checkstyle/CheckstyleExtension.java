@@ -38,6 +38,9 @@ public class CheckstyleExtension extends Extension {
     blueJ.setPreferenceGenerator(
         new CheckstylePreferences(blueJ, checkerService, violationManager)
     );
+    blueJ.setMenuGenerator(
+        new CheckstyleMenuBuilder(packageEventHandler)
+    );
   }
 
   @Override
