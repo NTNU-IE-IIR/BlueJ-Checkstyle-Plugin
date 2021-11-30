@@ -35,8 +35,9 @@ public class ViolationCell extends ListCell<Violation> {
     this.hintLabel = new Label();
     this.ruleWebView = ruleWebView;
     
-    hbox.getChildren().addAll(this.summaryLabel, hintLabel);
-    hbox.setSpacing(2);
+    this.hbox.getChildren().addAll(this.summaryLabel, this.hintLabel);
+    this.hbox.setSpacing(2);
+    this.setStyle("-fx-padding: 3px 0px 3px 24px;");
     this.setOnMouseClicked(this::handleMouseClick);
   }
 
@@ -58,7 +59,7 @@ public class ViolationCell extends ListCell<Violation> {
       this.hintLabel.setText(
           String.format("[%s, %s]", location.getLine(), location.getColumn())
       );
-      this.setGraphic(hbox);
+      this.setGraphic(this.hbox);
       this.setTooltip(new Tooltip("Double click to view in editor"));
     }
   }
