@@ -7,7 +7,6 @@ import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import no.ntnu.iir.bluej.checkstyle.core.editor.EditorNotifier;
 import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
@@ -46,12 +45,6 @@ public class CheckerListener implements AuditListener {
       ArrayList<Violation> violationList = new ArrayList<>();
       violationList.add(violation);
       violationManager.addViolations(fileName, violationList);
-    }
-
-    try {
-      EditorNotifier.showDiagnostic(violation);
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 
