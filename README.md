@@ -2,7 +2,7 @@
 A Checkstyle plugin/extension for BlueJ
 
 
-## Installing
+## Installing the extension
 
 1. Download the latest version of the extension found [here][1]
 2. Move the downloaded JAR to a BlueJ extensions2 directory
