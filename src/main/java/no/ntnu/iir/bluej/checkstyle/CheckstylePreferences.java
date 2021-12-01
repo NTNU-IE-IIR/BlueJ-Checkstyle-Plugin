@@ -1,14 +1,10 @@
 package no.ntnu.iir.bluej.checkstyle;
 
-import bluej.extensions2.BPackage;
 import bluej.extensions2.BlueJ;
 import bluej.extensions2.PreferenceGenerator;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
