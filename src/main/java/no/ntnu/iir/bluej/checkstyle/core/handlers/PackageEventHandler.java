@@ -1,13 +1,14 @@
 package no.ntnu.iir.bluej.checkstyle.core.handlers;
 
-import bluej.extensions2.BClass;
 import bluej.extensions2.BPackage;
 import bluej.extensions2.event.PackageEvent;
 import bluej.extensions2.event.PackageListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import no.ntnu.iir.bluej.checkstyle.core.checker.ICheckerService;
 import no.ntnu.iir.bluej.checkstyle.core.ui.AuditWindow;
 import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
@@ -80,46 +81,112 @@ public class PackageEventHandler implements PackageListener {
       AuditWindow projectWindow = projectWindowMap.get(packagePath);
 
       if (projectWindow == null) {
-        projectWindow = new AuditWindow(
-            windowTitlePrefix, 
-            bluePackage, 
-            packagePath
-        );
         
-        this.violationManager.addBluePackage(bluePackage);
-        this.violationManager.addListener(projectWindow);
-        this.projectWindowMap.put(packagePath, projectWindow);
-        this.checkAllPackageFiles(bluePackage);
+        String parentKey = this.findRootPackageKey(packagePath);
+
+        if (parentKey != null) {
+          this.violationManager.addBluePackage(bluePackage);
+        } else {
+          projectWindow = new AuditWindow(
+              windowTitlePrefix, 
+              bluePackage, 
+              packagePath
+          );
+          
+          this.projectWindowMap.put(packagePath, projectWindow);
+          this.violationManager.addListener(projectWindow);
+          List.of(bluePackage.getProject().getPackages()).forEach(bpack -> {
+            this.violationManager.addBluePackage(bpack);
+          });
+          this.checkerService.enable();
+          this.violationManager.syncBlueClassMap();
+          projectWindow.show();
+        }
+        
+        PackageEventHandler.checkAllPackagesOpen(this.violationManager, this.checkerService);
+
       }
 
-      projectWindow.show();
-      projectWindow.requestFocus();
-      
     } catch (Exception e) {
       // should never happen, package/project should be open when this is called by BlueJ
     }
   }
 
   /**
-   * Runs a check on all the files in a BlueJ Package/Project.
+   * Shows the project window from a BlueJ package.
    * 
-   * @param bluePackage the BlueJ package to run checks in
+   * @param bluePackage the package to show project window for
    */
-  private void checkAllPackageFiles(BPackage bluePackage) {
+  public void showProjectWindow(BPackage bluePackage) {
     try {
-      BClass[] classes = bluePackage.getClasses();
-      List<File> filesToCheck = new ArrayList<>();
-      
-      for (int i = 0; i < classes.length; i++) {
-        // only check compiled files
-        if (classes[i].isCompiled()) {
-          filesToCheck.add(classes[i].getJavaFile());
-        }
-      }
+      String packagePath = bluePackage.getDir().getPath();
+      String projectKey = this.findRootPackageKey(packagePath);
+      AuditWindow projectWindow = this.projectWindowMap.get(projectKey);
 
-      this.checkerService.checkFiles(filesToCheck, "utf-8");
+      if (projectWindow != null) {
+        projectWindow.show();
+      }
     } catch (Exception e) {
-      // should never happen, package/project should be open when this is called by BlueJ
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Checks if there is a root package open, if one is open it returns its key.
+   * 
+   * @param packagePath the path of the BlueJ package
+   * @return the root package key, or null if non-existant
+   */
+  private String findRootPackageKey(String packagePath) {
+    Iterator<String> pathIterator = this.projectWindowMap.keySet().iterator();
+    String parentWindowKey = null;
+    boolean hasOpenParent = false;
+
+    while (pathIterator.hasNext() && !hasOpenParent) {
+      String currentPath = pathIterator.next();
+      if (packagePath.startsWith(currentPath)) {
+        hasOpenParent = true;
+        parentWindowKey = currentPath;
+      }
+    }
+
+    return parentWindowKey;
+  }
+
+  /**
+   * Handles checking all the open packages/projects.
+   */
+  public static void checkAllPackagesOpen(
+      ViolationManager violationManager, 
+      ICheckerService checkerService
+  ) {
+    try {
+      List<BPackage> bluePackages = violationManager.getBluePackages();
+      violationManager.clearViolations();
+      for (BPackage bluePackage : bluePackages) {
+        List<File> filesToCheck = List.of(bluePackage.getClasses())
+            .stream()
+            .map(blueClass -> {
+              File sourceFile = null;
+
+              try {
+                // ignore compiled files
+                if (blueClass.isCompiled()) {
+                  sourceFile = blueClass.getJavaFile();
+                }
+              } catch (Exception e) {
+                // ignore
+              }
+
+              return sourceFile;
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+        checkerService.checkFiles(filesToCheck, "utf-8");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 }
