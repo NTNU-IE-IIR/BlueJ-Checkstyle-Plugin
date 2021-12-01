@@ -22,6 +22,7 @@ import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
+import no.ntnu.iir.bluej.checkstyle.core.handlers.PackageEventHandler;
 import no.ntnu.iir.bluej.checkstyle.core.ui.ErrorDialog;
 import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
@@ -172,7 +173,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
     try {
       this.checkerService.setConfiguration(configUri);
       this.checkerService.enable();
-      this.checkAllPackagesOpen();
+      PackageEventHandler.checkAllPackagesOpen(this.violationManager, this.checkerService);
     } catch (CheckstyleException e) {
       this.checkerService.disable();
       ErrorDialog errorDialog = new ErrorDialog(
@@ -180,39 +181,6 @@ public class CheckstylePreferences implements PreferenceGenerator {
           "Disabled checking to prevent errors.\n" + e.getMessage()
       );
       errorDialog.show();
-    }
-  }
-
-  /**
-   * Handles checking all the open packages/projects.
-   */
-  private void checkAllPackagesOpen() {
-    try {
-      List<BPackage> bluePackages = this.violationManager.getBluePackages();
-      this.violationManager.clearViolations();
-      for (BPackage bluePackage : bluePackages) {
-        List<File> filesToCheck = List.of(bluePackage.getClasses())
-            .stream()
-            .map(blueClass -> {
-              File sourceFile = null;
-
-              try {
-                if (blueClass.isCompiled()) {
-                  sourceFile = blueClass.getJavaFile();
-                }
-              } catch (Exception e) {
-                // ignore
-              }
-
-              return sourceFile;
-            })
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-
-        this.checkerService.checkFiles(filesToCheck, "utf-8");
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 

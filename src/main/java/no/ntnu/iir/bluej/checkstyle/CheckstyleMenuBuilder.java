@@ -15,7 +15,7 @@ public class CheckstyleMenuBuilder extends MenuGenerator {
   @Override
   public MenuItem getToolsMenuItem(BPackage bluePackage) {
     MenuItem menuItem = new MenuItem("Show Checkstyle overview");
-    menuItem.setOnAction(event -> packageEventHandler.openProjectWindow(bluePackage));
+    menuItem.setOnAction(event -> packageEventHandler.showProjectWindow(bluePackage));
     return menuItem;
   }
 }
