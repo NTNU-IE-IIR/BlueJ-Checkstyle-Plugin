@@ -29,4 +29,7 @@ To install for a project, make a directory called `extensions2` in the projects 
 
 **Tip:** For Mac users, Control-click BlueJ.app and choose Show Package Contents to find the system directory.
 
+For further information about Extensions in BlueJ see: [BlueJ Extensions][2]
+
 [1]: https://github.com/NTNU-IE-IIR/BlueJ-Checkstyle-Plugin/releases/latest
+[2]: https://www.bluej.org/extensions/extensions2.html
