@@ -95,9 +95,9 @@ public class PackageEventHandler implements PackageListener {
           
           this.projectWindowMap.put(packagePath, projectWindow);
           this.violationManager.addListener(projectWindow);
-          List.of(bluePackage.getProject().getPackages()).forEach(bpack -> {
-            this.violationManager.addBluePackage(bpack);
-          });
+          List.of(bluePackage.getProject().getPackages()).forEach(
+              this.violationManager::addBluePackage
+          );
           this.checkerService.enable();
           this.violationManager.syncBlueClassMap();
           projectWindow.show();
