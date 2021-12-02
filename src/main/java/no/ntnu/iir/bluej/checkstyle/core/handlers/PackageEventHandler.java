@@ -3,6 +3,7 @@ package no.ntnu.iir.bluej.checkstyle.core.handlers;
 import bluej.extensions2.BPackage;
 import bluej.extensions2.event.PackageEvent;
 import bluej.extensions2.event.PackageListener;
+import javafx.scene.layout.HBox;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ public class PackageEventHandler implements PackageListener {
   private String windowTitlePrefix;
   private ViolationManager violationManager;
   private ICheckerService checkerService;
+  private HBox statusBar;
 
   /**
    * Instantiates a new handler for Package events.
@@ -30,16 +32,19 @@ public class PackageEventHandler implements PackageListener {
    * @param windowTitlePrefix the title prefix of audit windows spawned
    * @param violationManager the ViolationManager for windows to subscribe to
    * @param checkerService the CheckerService to use for checking files when a package opens
+   * @param statusBar the statusBar to show in the AuditWindow
    */
   public PackageEventHandler(
       String windowTitlePrefix, 
       ViolationManager violationManager, 
-      ICheckerService checkerService
+      ICheckerService checkerService,
+      HBox statusBar
   ) {
     this.projectWindowMap = new HashMap<>();
     this.windowTitlePrefix = windowTitlePrefix;
     this.violationManager = violationManager;
     this.checkerService = checkerService;
+    this.statusBar = statusBar;
   }
 
   /**
@@ -93,6 +98,7 @@ public class PackageEventHandler implements PackageListener {
               packagePath
           );
           
+          projectWindow.setStatusBar(this.statusBar);
           this.projectWindowMap.put(packagePath, projectWindow);
           this.violationManager.addListener(projectWindow);
           List.of(bluePackage.getProject().getPackages()).forEach(
