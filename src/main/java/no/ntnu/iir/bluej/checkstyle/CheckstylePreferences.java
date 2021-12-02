@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import java.io.File;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import javafx.beans.property.SimpleStringProperty;
@@ -46,6 +48,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
   private TextField addConfigPathInput;
   private TableView<Entry<String, String>> tableView;
   private ObjectMapper objectMapper;
+  private List<CheckstylePreferencesListener> listeners;
   
   private static final String CHECKSTYLE_DEFAULT_CONFIG = "Checkstyle.DefaultConfig";
   private static final String CHECKSTYLE_CONFIG_MAP = "Checkstyle.ConfigMap";
@@ -68,6 +71,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
     this.violationManager = violationManager;
     this.configMap = new HashMap<>();
     this.objectMapper = new ObjectMapper();
+    this.listeners = new ArrayList<>();
     this.initPane();
     this.loadValues();
   }
@@ -206,7 +210,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
   private void reloadUiData() {
     String selectedPre = this.defaultConfigComboBox.getSelectionModel().getSelectedItem();
     this.defaultConfigComboBox.getItems().setAll(this.configMap.keySet());
-    if (this.configMap.containsKey(selectedPre)) {
+    if (this.configMap.get(selectedPre) != null) {
       this.defaultConfigComboBox.getSelectionModel().select(selectedPre);
     } else {
       // set the first key in the set to be default (in case removed was selected)
@@ -231,14 +235,8 @@ public class CheckstylePreferences implements PreferenceGenerator {
    * @param configKey the configuration key to fetch path from
    */
   public void setConfig(String configKey) {
-    if (this.configMap.containsKey(configKey)) {
-      this.currentConfig = configKey;
-      this.configureCheckerService();
-    } else {
-      throw new IllegalArgumentException(
-        "Could not find a config with key: " + configKey
-      );
-    }
+    this.currentConfig = configKey;
+    this.configureCheckerService();
   }
 
   /**
@@ -282,9 +280,11 @@ public class CheckstylePreferences implements PreferenceGenerator {
         this.blueJ.getExtensionPropertyString(CHECKSTYLE_DEFAULT_CONFIG, CHECKSTYLE_BUILTIN_GOOGLE)
     );
     
-    this.currentConfig = this.defaultConfigComboBox.getValue();
+    if (this.currentConfig == null) {
+      this.currentConfig = this.defaultConfigComboBox.getValue();
+    }
+
     this.reloadUiData();
-    this.configureCheckerService();
   }
 
   /**
@@ -293,15 +293,18 @@ public class CheckstylePreferences implements PreferenceGenerator {
   @Override
   public void saveValues() {
     String configMapAsString = "";
+
     try {
       configMapAsString = this.objectMapper.writeValueAsString(this.configMap);
     } catch (Exception e) {
       e.printStackTrace();
     }
+
     this.blueJ.setExtensionPropertyString(
         CHECKSTYLE_CONFIG_MAP, 
         configMapAsString
     ); 
+
     this.blueJ.setExtensionPropertyString(
         CHECKSTYLE_DEFAULT_CONFIG, this.defaultConfigComboBox.getValue()
     );
@@ -328,6 +331,8 @@ public class CheckstylePreferences implements PreferenceGenerator {
       );
       errorDialog.show();
     }
+
+    this.notifyListeners();
   }
 
   /**
@@ -348,4 +353,49 @@ public class CheckstylePreferences implements PreferenceGenerator {
     }
   }
 
+  /**
+   * Returns a boolean representing the state of the Checkstyle Service.
+   * 
+   * @return a boolean representing the state of the Checkstyle Service
+   */
+  public boolean isServiceEnabled() {
+    return this.checkerService.isEnabled();
+  }
+
+  /**
+   * Returns the current configuration.
+   * 
+   * @return the current configuration
+   */
+  public String getCurrentConfig() {
+    return this.currentConfig;
+  }
+
+  /**
+   * Adds a config change listener to the list of listeners.
+   * 
+   * @param listener the listener to add to the list of listeners
+   */
+  public void addConfigChangeListener(CheckstylePreferencesListener listener) {
+    this.listeners.add(listener);
+  }
+
+  /**
+   * Removes a config change listener to the list of listeners.
+   * 
+   * @param listener the listener to remove from the list of listeners
+   */
+  public void removeConfigChangeListener(CheckstylePreferencesListener listener) {
+    this.listeners.remove(listener);
+  }
+
+  /**
+   * Helper method for notifying all the config change listeners.
+   */
+  private void notifyListeners() {
+    this.listeners.forEach(listener -> 
+        listener.onConfigChanged(this.currentConfig)
+    );
+  }
+ 
 }
