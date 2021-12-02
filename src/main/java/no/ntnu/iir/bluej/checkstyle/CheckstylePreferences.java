@@ -2,19 +2,27 @@ package no.ntnu.iir.bluej.checkstyle;
 
 import bluej.extensions2.BlueJ;
 import bluej.extensions2.PreferenceGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import java.io.File;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
@@ -29,18 +37,20 @@ import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
  */
 public class CheckstylePreferences implements PreferenceGenerator {
   private BlueJ blueJ;
+  private String currentConfig;
   private CheckerService checkerService;
   private ViolationManager violationManager;
-  private GridPane pane;
-  private CheckBox useProvidedCheckBox;
-  private ComboBox<String> providedConfigList;
-  private HashMap<String, String> providedConfigs;
-  private TextField customConfigPath;
-  private Button browseConfigPathButton;
-
-  public static final String CHECKSTYLE_USE_PROVIDED = "Checkstyle.UseProvided";
-  public static final String CHECKSTYLE_CONFIG_SELECTED = "Checkstyle.SelectedConfig";
-  public static final String CHECKSTYLE_CONFIG_PATH = "Checkstyle.CustomConfigPath";
+  private VBox pane;
+  private ComboBox<String> defaultConfigComboBox;
+  private HashMap<String, String> configMap; // (config name, config path)
+  private TextField addConfigPathInput;
+  private TableView<Entry<String, String>> tableView;
+  private ObjectMapper objectMapper;
+  
+  public static final String CHECKSTYLE_DEFAULT_CONFIG = "Checkstyle.DefaultConfig";
+  public static final String CHECKSTYLE_CONFIG_MAP = "Checkstyle.ConfigMap";
+  private static final String CHECKSTYLE_BUILTIN_GOOGLE = "Google";
+  private static final String CHECKSTYLE_BUILTIN_SUN = "Sun";
 
   /**
    * Constructs a new PreferencesGenerator implemenetation.
@@ -56,50 +66,179 @@ public class CheckstylePreferences implements PreferenceGenerator {
     this.blueJ = blueJ;
     this.checkerService = checkerService;
     this.violationManager = violationManager;
-    this.providedConfigs = new HashMap<>();
-    this.providedConfigs.put("Google", "config/google_checks.xml");
-    this.providedConfigs.put("Sun", "config/sun_checks.xml");
+    this.configMap = new HashMap<>();
+    this.objectMapper = new ObjectMapper();
     this.initPane();
     this.loadValues();
   }
 
   /**
-   * Instantiates necessary UI elements and places them in the grid.
+   * Instantiates necessary UI elements and places them in the wrapping pane.
+   * The pane holds all the UI elements that will be shown in the Preferences tab.
    */
   public void initPane() {
-    this.pane = new GridPane();
-    this.pane.setVgap(10);
-    this.pane.setHgap(5);
+    this.pane = new VBox();
+    this.pane.setSpacing(10);
 
-    ColumnConstraints labelColumn = new ColumnConstraints();
-    ColumnConstraints fieldColumn = new ColumnConstraints(100, 100, Double.MAX_VALUE);
-    ColumnConstraints buttonColumn = new ColumnConstraints();
+    this.defaultConfigComboBox = new ComboBox<>();
+    HBox defaultConfigHBox = new HBox();
+    defaultConfigHBox.setAlignment(Pos.CENTER_LEFT);
+    defaultConfigHBox.setSpacing(5);
+    defaultConfigHBox.getChildren().addAll(
+        new Label("Select a default config"),
+        this.defaultConfigComboBox
+    );
 
-    fieldColumn.setHgrow(Priority.ALWAYS);
+    this.addConfigPathInput = new TextField();
+    this.addConfigPathInput.promptTextProperty().set("Config file path");
 
-    this.pane.getColumnConstraints().addAll(labelColumn, fieldColumn, buttonColumn);
+    Button browseConfigPathButton = new Button("Browse");
+    browseConfigPathButton.setOnAction(this::onBrowseConfigPath);
 
-    this.useProvidedCheckBox = new CheckBox();
-    this.useProvidedCheckBox.setOnAction(this::onUseProvidedToggle);
+    this.tableView = new TableView<>();
 
-    this.providedConfigList = new ComboBox<>();
-    this.providedConfigList.getItems().addAll(this.providedConfigs.keySet());
+    TableColumn<Entry<String, String>, String> configNameColumn = new TableColumn<>("Config name");
+    configNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+    configNameColumn.setCellValueFactory(param ->
+        new SimpleStringProperty(param.getValue().getKey())
+    );
 
-    pane.add(new Label("Use provided configs"), 0, 0);
-    pane.add(useProvidedCheckBox, 1, 0);
+    // fix the width of the column
+    configNameColumn.setMinWidth(115);
+    configNameColumn.setMaxWidth(115);
 
-    pane.add(new Label("Select a provided config"), 0, 1);
-    pane.add(providedConfigList, 1, 1);
+    TableColumn<Entry<String, String>, String> configPathColumn = new TableColumn<>("Config path");
+    configPathColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
-    this.customConfigPath = new TextField();
+    // custom cell factory for hiding paths for built-in config files
+    configPathColumn.setCellValueFactory(param -> {
+      SimpleStringProperty value = null;
+      if (param.getValue().getKey().equals(CHECKSTYLE_BUILTIN_GOOGLE)
+          || param.getValue().getKey().equals(CHECKSTYLE_BUILTIN_SUN)) {
+        value = new SimpleStringProperty("(built-in)");
+      } else {
+        value = new SimpleStringProperty(param.getValue().getValue());
+      }
+      return value;
+    });
 
-    this.browseConfigPathButton = new Button("Browse");
-    this.browseConfigPathButton.setOnAction(this::onBrowseConfigPath);
+    // fix the width of the column
+    configPathColumn.setMinWidth(400);
+    configPathColumn.setMaxWidth(400);
 
-    pane.add(new Label("Custom config location"), 0, 2);
-    pane.add(this.customConfigPath, 1, 2);
-    pane.add(this.browseConfigPathButton, 2, 2);
+    this.tableView.getColumns().add(configNameColumn);
+    this.tableView.getColumns().add(configPathColumn);
+    this.tableView.setMaxHeight(200);
 
+    this.configMap.entrySet().forEach(this.tableView.getItems()::add);
+    Button addButton = new Button("Add config");
+    addButton.setOnAction(event -> {
+      CheckstyleConfigFormDialog dialog = new CheckstyleConfigFormDialog();
+      dialog.showAndWait();
+
+      SimpleEntry<String, String> result = dialog.getResult();
+
+      if (result != null) {
+        this.configMap.put(result.getKey(), result.getValue());
+        this.reloadUiData();
+      }
+    });
+
+    Button editButton = new Button("Edit selected");
+    editButton.setOnAction(event -> {
+      Entry<String, String> selected = this.tableView.getSelectionModel().getSelectedItem();
+      CheckstyleConfigFormDialog dialog = new CheckstyleConfigFormDialog(
+          selected.getKey(),
+          selected.getValue()
+      );
+
+      dialog.showAndWait();
+
+      SimpleEntry<String, String> result = dialog.getResult();
+
+      if (result != null) {
+        this.configMap.remove(selected.getKey());
+        this.configMap.put(result.getKey(), result.getValue());
+        this.reloadUiData();
+      }
+    });
+
+    Button deleteButton = new Button("Delete selected");
+    deleteButton.setOnAction(event -> {
+      Entry<String, String> selected = this.tableView.getSelectionModel().getSelectedItem();
+      this.configMap.remove(selected.getKey());
+      this.reloadUiData();
+    });
+
+    // default buttons to be disabled
+    deleteButton.setDisable(true);
+    editButton.setDisable(true);
+
+    // handle disable edit/delete buttons for builtin config files
+    this.tableView.getSelectionModel().selectedItemProperty().addListener(
+        (obs, oldSelection, newSelection) -> {
+          deleteButton.setDisable(true);
+          editButton.setDisable(true);
+          if (newSelection != null) {
+            String configKey = newSelection.getKey();
+            if (!configKey.equals(CHECKSTYLE_BUILTIN_GOOGLE) 
+                && !configKey.equals(CHECKSTYLE_BUILTIN_SUN)) {
+              deleteButton.setDisable(false);
+              editButton.setDisable(false);
+            }
+          }
+        }
+    );
+
+    HBox actionHBox = new HBox();
+    actionHBox.getChildren().addAll(addButton, editButton, deleteButton);
+    actionHBox.setSpacing(5);
+
+    pane.getChildren().add(defaultConfigHBox);
+    pane.getChildren().add(this.tableView);
+    pane.getChildren().add(actionHBox);
+  }
+
+  /**
+   * Reloads UI elements that depend on data from the HashMap.
+   * Should be called when a change is made to update to the latest source of truth.
+   */
+  private void reloadUiData() {
+    String selectedPre = this.defaultConfigComboBox.getSelectionModel().getSelectedItem();
+    this.defaultConfigComboBox.getItems().setAll(this.configMap.keySet());
+    if (this.configMap.containsKey(selectedPre)) {
+      this.defaultConfigComboBox.getSelectionModel().select(selectedPre);
+    } else {
+      // set the first key in the set to be default (in case removed was selected)
+      String firstKey = this.configMap.keySet().iterator().next();
+      this.defaultConfigComboBox.getSelectionModel().select(firstKey);
+    }
+    this.tableView.getItems().setAll(this.configMap.entrySet());
+  }
+
+  /**
+   * Returns a set of the keys to all configuration file references.
+   * 
+   * @return a set of the keys to all configuration file references
+   */
+  public Set<String> getConfigKeys() {
+    return this.configMap.keySet();
+  }
+
+  /**
+   * Sets the current configuration of Checkstyle and configures the service.
+   * 
+   * @param configKey the configuration key to fetch path from
+   */
+  public void setConfig(String configKey) {
+    if (this.configMap.containsKey(configKey)) {
+      this.currentConfig = configKey;
+      this.configureCheckerService();
+    } else {
+      throw new IllegalArgumentException(
+        "Could not find a config with key: " + configKey
+      );
+    }
   }
 
   /**
@@ -117,20 +256,34 @@ public class CheckstylePreferences implements PreferenceGenerator {
    */
   @Override
   public void loadValues() {
-    this.useProvidedCheckBox.setSelected(
-        Boolean.parseBoolean(this.blueJ.getExtensionPropertyString(CHECKSTYLE_USE_PROVIDED, "true"))
+    String configJsonString = this.blueJ.getExtensionPropertyString(
+        CHECKSTYLE_CONFIG_MAP, // key
+        ""                     // default
     );
 
-    this.providedConfigList.setValue(
-        this.blueJ.getExtensionPropertyString(CHECKSTYLE_CONFIG_SELECTED, "Google")
-    );
+    try {
+      TypeReference<HashMap<String, String>> typeReference = 
+          new TypeReference<HashMap<String, String>>() {};
 
-    this.customConfigPath.setText(
-        this.blueJ.getExtensionPropertyString(CHECKSTYLE_CONFIG_PATH, "")
-    );
+      this.configMap = this.objectMapper.readValue(configJsonString, typeReference);
+    } catch (Exception e) {
+      this.configMap.put(
+          CHECKSTYLE_BUILTIN_GOOGLE, 
+          this.getClass().getClassLoader().getResource("config/google_checks.xml").toString()
+      );
 
-    // make UI evaluate what fields should be active on load
-    this.onUseProvidedToggle(null);
+      this.configMap.put(
+          CHECKSTYLE_BUILTIN_SUN, 
+          this.getClass().getClassLoader().getResource("config/sun_checks.xml").toString()
+      );
+    }
+
+    this.defaultConfigComboBox.setValue(
+        this.blueJ.getExtensionPropertyString(CHECKSTYLE_DEFAULT_CONFIG, CHECKSTYLE_BUILTIN_GOOGLE)
+    );
+    
+    this.currentConfig = this.defaultConfigComboBox.getValue();
+    this.reloadUiData();
     this.configureCheckerService();
   }
 
@@ -139,14 +292,18 @@ public class CheckstylePreferences implements PreferenceGenerator {
    */
   @Override
   public void saveValues() {
+    String configMapAsString = "";
+    try {
+      configMapAsString = this.objectMapper.writeValueAsString(this.configMap);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     this.blueJ.setExtensionPropertyString(
-        CHECKSTYLE_USE_PROVIDED, String.valueOf(this.useProvidedCheckBox.isSelected())
-    );
+        CHECKSTYLE_CONFIG_MAP, 
+        configMapAsString
+    ); 
     this.blueJ.setExtensionPropertyString(
-        CHECKSTYLE_CONFIG_SELECTED, this.providedConfigList.getValue()
-    );
-    this.blueJ.setExtensionPropertyString(
-        CHECKSTYLE_CONFIG_PATH, this.customConfigPath.getText()
+        CHECKSTYLE_DEFAULT_CONFIG, this.defaultConfigComboBox.getValue()
     );
   }
 
@@ -154,15 +311,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
    * Configures the CheckerService to use the user defined preferences.
    */
   private void configureCheckerService() {
-    String configUri = "";
-
-    if (this.useProvidedCheckBox.isSelected()) {
-      String configName = this.providedConfigList.getValue();
-      String configPath = this.providedConfigs.get(configName);
-      configUri = this.getClass().getClassLoader().getResource(configPath).toString();
-    } else {
-      configUri = this.customConfigPath.getText();  
-    }
+    String configUri = this.configMap.get(this.currentConfig);
 
     this.violationManager.clearViolations();
 
@@ -174,27 +323,10 @@ public class CheckstylePreferences implements PreferenceGenerator {
       this.checkerService.disable();
       ErrorDialog errorDialog = new ErrorDialog(
           "The set Checkstyle configuration was invalid, checking is disabled.",
-          "Disabled checking to prevent errors.\n" + e.getMessage()
+          "Disabled checking to prevent errors.",
+          e.getMessage()
       );
       errorDialog.show();
-    }
-  }
-
-  /**
-   * Handles toggle events for the useProvidedCheckBox.
-   * Disables inputs based on the selection state.
-   * 
-   * @param event the event that caused this method to be called
-   */
-  private void onUseProvidedToggle(ActionEvent event) {
-    if (useProvidedCheckBox.isSelected()) {
-      this.providedConfigList.setDisable(false);
-      this.customConfigPath.setDisable(true);
-      this.browseConfigPathButton.setDisable(true);
-    } else {
-      this.providedConfigList.setDisable(true);
-      this.customConfigPath.setDisable(false);
-      this.browseConfigPathButton.setDisable(false);
     }
   }
 
@@ -212,7 +344,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
     File fileChosen = fileChooser.showOpenDialog(this.pane.getScene().getWindow());
 
     if (fileChosen != null) {
-      this.customConfigPath.setText(fileChosen.getPath());
+      this.addConfigPathInput.setText(fileChosen.getPath());
     }
   }
 
