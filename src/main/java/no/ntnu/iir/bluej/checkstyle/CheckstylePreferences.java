@@ -47,8 +47,8 @@ public class CheckstylePreferences implements PreferenceGenerator {
   private TableView<Entry<String, String>> tableView;
   private ObjectMapper objectMapper;
   
-  public static final String CHECKSTYLE_DEFAULT_CONFIG = "Checkstyle.DefaultConfig";
-  public static final String CHECKSTYLE_CONFIG_MAP = "Checkstyle.ConfigMap";
+  private static final String CHECKSTYLE_DEFAULT_CONFIG = "Checkstyle.DefaultConfig";
+  private static final String CHECKSTYLE_CONFIG_MAP = "Checkstyle.ConfigMap";
   private static final String CHECKSTYLE_BUILTIN_GOOGLE = "Google";
   private static final String CHECKSTYLE_BUILTIN_SUN = "Sun";
 
