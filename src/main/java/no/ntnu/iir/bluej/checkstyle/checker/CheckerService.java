@@ -7,6 +7,7 @@ import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import no.ntnu.iir.bluej.checkstyle.core.checker.ICheckerService;
@@ -18,15 +19,25 @@ import no.ntnu.iir.bluej.checkstyle.core.checker.ICheckerService;
 public class CheckerService implements ICheckerService {
   private Checker checker;
   private boolean enabled;
+  private List<AuditListener> listeners;
 
   /**
    * Constructs a new CheckerService.
    */
   public CheckerService() {
-    this.checker = new Checker();
     this.enabled = false;
+    this.listeners = new ArrayList<>();
+    this.initChecker();
+  }
+
+  private void initChecker() {
+    this.checker = new Checker();
     this.checker.setBasedir(null);
     this.checker.setModuleClassLoader(Checker.class.getClassLoader());
+
+    for (AuditListener listener : this.listeners) {
+      this.checker.addListener(listener);
+    }
   }
 
   @Override
@@ -53,6 +64,7 @@ public class CheckerService implements ICheckerService {
    */
   public void setConfiguration(String configPath) throws CheckstyleException {
     Properties checkstyleProperties = new Properties();
+    this.initChecker(); // re init checker to prevent using two configs
     this.checker.configure(ConfigurationLoader.loadConfiguration(
         configPath,
         new PropertiesExpander(checkstyleProperties)
@@ -65,6 +77,7 @@ public class CheckerService implements ICheckerService {
    * @param listener the AuditListener to add to the Checker.
    */
   public void addListener(AuditListener listener) {
+    this.listeners.add(listener);
     this.checker.addListener(listener);
   }
 
@@ -74,6 +87,7 @@ public class CheckerService implements ICheckerService {
    * @param listener the AuditListener to remove from the Checker.
    */
   public void removeListener(AuditListener listener) {
+    this.listeners.remove(listener);
     this.checker.removeListener(listener);
   }
 

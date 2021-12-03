@@ -19,19 +19,6 @@ public class Violation {
   private RuleDefinition ruleDefinition;
 
   /**
-   * Constructs a new Violation without a RuleDefinition.
-   * 
-   * @param summary a String containing a brief explanation of the violation
-   * @param blueClass the BlueJ Class file where the violation was found
-   * @param location the TextLocation where the violation was found in the file
-   */
-  public Violation(String summary, BClass blueClass, TextLocation location) {
-    this.summary = summary;
-    this.blueClass = blueClass;
-    this.location = location;
-  }
-
-  /**
    * Constructs a new Violation with a RuleDefinition.
    * 
    * @param summary a String containing a brief explanation of the violation

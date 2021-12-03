@@ -44,6 +44,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ env.RELEASE_VERSION }}
-          name: Release version ${{ env.RELEASE_VERSION }}
+          name: v${{ env.RELEASE_VERSION }}
           body: "**Changes:**"
           files: ./target/*-${{ env.RELEASE_VERSION }}.jar

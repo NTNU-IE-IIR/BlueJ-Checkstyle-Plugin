@@ -1,9 +1,17 @@
 package no.ntnu.iir.bluej.checkstyle.core.ui;
 
 import bluej.extensions2.editor.TextLocation;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import java.net.URL;
+import java.util.List;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.WebView;
@@ -17,7 +25,8 @@ import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
  * Also handles click events for buttons within the Cell.
  */
 public class ViolationCell extends ListCell<Violation> {
-  private HBox hbox = new HBox();
+  private HBox hbox;
+  private HBox iconBox;
   private Label summaryLabel;
   private Label hintLabel;
   private Violation violation;
@@ -31,12 +40,20 @@ public class ViolationCell extends ListCell<Violation> {
   public ViolationCell(WebView ruleWebView) {
     super();
 
+    this.iconBox = new HBox();
+    this.iconBox.setMinWidth(36);
+    this.iconBox.setMaxWidth(36);
+    this.iconBox.setAlignment(Pos.CENTER_RIGHT);
+    
     this.summaryLabel = new Label();
     this.hintLabel = new Label();
     this.ruleWebView = ruleWebView;
     
-    hbox.getChildren().addAll(this.summaryLabel, hintLabel);
-    hbox.setSpacing(2);
+    
+    this.hbox = new HBox();
+    this.hbox.getChildren().addAll(this.iconBox, this.summaryLabel, this.hintLabel);
+    this.hbox.setSpacing(2);
+    this.setStyle("-fx-padding: 3px 0px 3px 0px;");
     this.setOnMouseClicked(this::handleMouseClick);
   }
 
@@ -53,12 +70,36 @@ public class ViolationCell extends ListCell<Violation> {
     if (violation != null && !empty) {
       this.violation = violation;
       this.summaryLabel.setText(violation.getSummary());
+
+      URL typeIconUrl = violation.getRuleDefinition().getTypeIcon();
+      ImageView typeIconView = null;
+
+      if (typeIconUrl != null) {
+        Image typeIcon = new Image(typeIconUrl.toString());
+        typeIconView = new ImageView(typeIcon);
+        typeIconView.setFitHeight(16);
+        typeIconView.setFitWidth(16);
+      }
+      
+      URL severityIconUrl = violation.getRuleDefinition().getSeverityIcon();
+      ImageView severityIconView = null;
+      if (severityIconUrl != null) {
+        Image severityIcon = new Image(severityIconUrl.toString());
+        severityIconView = new ImageView(severityIcon);
+        severityIconView.setFitHeight(16);
+        severityIconView.setFitWidth(16);
+      }
+
+      List<ImageView> icons = Lists.newArrayList(typeIconView, severityIconView);
+      Iterables.removeIf(icons, Predicates.isNull());
+      this.iconBox.getChildren().setAll(icons);
+
       TextLocation location = violation.getLocation();
       this.hintLabel.setOpacity(0.75);
       this.hintLabel.setText(
           String.format("[%s, %s]", location.getLine(), location.getColumn())
       );
-      this.setGraphic(hbox);
+      this.setGraphic(this.hbox);
       this.setTooltip(new Tooltip("Double click to view in editor"));
     }
   }
@@ -83,7 +124,7 @@ public class ViolationCell extends ListCell<Violation> {
         // render rule description if any
         RuleDefinition definition = violation.getRuleDefinition();
   
-        if (definition == null) {
+        if (definition.getDescription() == null) {
           this.ruleWebView.getEngine().loadContent(
               "The selected violation does not have a rule description..."
           );

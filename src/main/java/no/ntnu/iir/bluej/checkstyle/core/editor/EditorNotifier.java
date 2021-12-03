@@ -55,6 +55,7 @@ public class EditorNotifier {
    * 
    * @param violation the Violation to show diagnostic message about
    */
+  @Deprecated
   public static void showDiagnostic(
       Violation violation
   ) throws ProjectNotOpenException, PackageNotFoundException {

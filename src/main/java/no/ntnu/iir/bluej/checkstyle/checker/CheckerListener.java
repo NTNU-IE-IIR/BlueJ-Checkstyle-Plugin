@@ -7,7 +7,7 @@ import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import no.ntnu.iir.bluej.checkstyle.core.editor.EditorNotifier;
+import no.ntnu.iir.bluej.checkstyle.core.violations.RuleDefinition;
 import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
 import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
@@ -32,10 +32,18 @@ public class CheckerListener implements AuditListener {
     String fileName = auditEvent.getFileName();
     File file = new File(fileName);
     BClass sourceBClass = this.violationManager.getBlueClass(file.getPath());
+    RuleDefinition ruleDefinition = new RuleDefinition(
+        auditEvent.getMessage(), 
+        auditEvent.getModuleId(), 
+        null, 
+        auditEvent.getSeverityLevel().getName(), 
+        null
+    );
     Violation violation = new Violation(
         auditEvent.getMessage(), 
         sourceBClass, 
-        new TextLocation(auditEvent.getLine(), auditEvent.getColumn())
+        new TextLocation(auditEvent.getLine(), auditEvent.getColumn()),
+        ruleDefinition
     );
 
     List<Violation> violations = violationManager.getViolations(fileName);
@@ -46,12 +54,6 @@ public class CheckerListener implements AuditListener {
       ArrayList<Violation> violationList = new ArrayList<>();
       violationList.add(violation);
       violationManager.addViolations(fileName, violationList);
-    }
-
-    try {
-      EditorNotifier.showDiagnostic(violation);
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 
