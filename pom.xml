@@ -147,7 +147,6 @@
               <artifactSet>
                 <excludes>
                   <exclude>org.openjfx:*</exclude>
-                  <exclude>com.google*:*</exclude>
                   <exclude>junit:*</exclude>
                   <exclude>bluej:*</exclude>
                 </excludes>
