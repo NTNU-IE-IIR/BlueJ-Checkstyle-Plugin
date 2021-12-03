@@ -16,7 +16,7 @@ public class CheckstyleStatusBar extends HBox implements CheckstylePreferencesLi
   private ComboBox<String> currentConfigComboBox;
 
   /**
-   * New status bar bro.
+   * Instantiates the status bar.
    * 
    * @param preferences preferences instance
    */
@@ -56,6 +56,9 @@ public class CheckstyleStatusBar extends HBox implements CheckstylePreferencesLi
     this.updateIndicator();
   }
 
+  /**
+   * Handles when configuration has changed.
+   */
   @Override
   public void onConfigChanged(String currentConfig) {
     this.currentConfigComboBox.getItems().setAll(preferences.getConfigKeys());
@@ -63,6 +66,9 @@ public class CheckstyleStatusBar extends HBox implements CheckstylePreferencesLi
     this.updateIndicator();
   }
 
+  /**
+   * Updates the status indicator depending on the Services status.
+   */
   private void updateIndicator() {
     if (this.preferences.isServiceEnabled()) {
       this.statusIndicator.setText("Status: ON");
