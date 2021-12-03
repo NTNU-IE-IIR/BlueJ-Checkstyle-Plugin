@@ -7,6 +7,7 @@ import no.ntnu.iir.bluej.checkstyle.checker.CheckerListener;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
 import no.ntnu.iir.bluej.checkstyle.core.handlers.FilesChangeHandler;
 import no.ntnu.iir.bluej.checkstyle.core.handlers.PackageEventHandler;
+import no.ntnu.iir.bluej.checkstyle.core.violations.RuleDefinition;
 import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
 
 public class CheckstyleExtension extends Extension {
@@ -16,6 +17,7 @@ public class CheckstyleExtension extends Extension {
   public void startup(BlueJ blueJ) {
     LOGGER.info("Starting " + this.getName());
     
+    RuleDefinition.setIconMapper(new CheckstyleIconMapper());
     CheckerService checkerService = new CheckerService();
     ViolationManager violationManager = new ViolationManager();
 
@@ -33,7 +35,7 @@ public class CheckstyleExtension extends Extension {
         checkerService, 
         violationManager
     );
-    
+
     CheckstyleStatusBar checkstyleStatusBar = new CheckstyleStatusBar(preferences);
     preferences.addConfigChangeListener(checkstyleStatusBar);
 
