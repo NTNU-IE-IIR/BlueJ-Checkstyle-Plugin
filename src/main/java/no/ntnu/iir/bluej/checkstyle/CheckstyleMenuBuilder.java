@@ -3,7 +3,7 @@ package no.ntnu.iir.bluej.checkstyle;
 import bluej.extensions2.BPackage;
 import bluej.extensions2.MenuGenerator;
 import javafx.scene.control.MenuItem;
-import no.ntnu.iir.bluej.checkstyle.core.handlers.PackageEventHandler;
+import no.ntnu.iir.bluej.extensions.linting.core.handlers.PackageEventHandler;
 
 public class CheckstyleMenuBuilder extends MenuGenerator {
   private PackageEventHandler packageEventHandler;

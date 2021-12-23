@@ -6,11 +6,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import java.io.File;
+import java.io.InputStream;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -28,9 +30,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
-import no.ntnu.iir.bluej.checkstyle.core.handlers.PackageEventHandler;
-import no.ntnu.iir.bluej.checkstyle.core.ui.ErrorDialog;
-import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
+import no.ntnu.iir.bluej.extensions.linting.core.checker.ICheckerService;
+import no.ntnu.iir.bluej.extensions.linting.core.handlers.PackageEventHandler;
+import no.ntnu.iir.bluej.extensions.linting.core.ui.ErrorDialog;
+import no.ntnu.iir.bluej.extensions.linting.core.violations.ViolationManager;
 
 /**
  * Represents a Preferences class.
@@ -49,6 +52,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
   private TableView<Entry<String, String>> tableView;
   private ObjectMapper objectMapper;
   private List<CheckstylePreferencesListener> listeners;
+  private Properties pomProperties;
   
   private static final String CHECKSTYLE_DEFAULT_CONFIG = "Checkstyle.DefaultConfig";
   private static final String CHECKSTYLE_CONFIG_MAP = "Checkstyle.ConfigMap";
@@ -285,6 +289,17 @@ public class CheckstylePreferences implements PreferenceGenerator {
     }
 
     this.reloadUiData();
+
+    try {
+      InputStream inputStream = this.getClass()
+          .getClassLoader().getResourceAsStream("config/pom.properties");
+      Properties checkstyleProps = new Properties();
+      checkstyleProps.load(inputStream);
+      this.pomProperties = checkstyleProps;
+    } catch (Exception e) {
+      // should not happen, only in case file/resource does not exist.
+      e.printStackTrace(); 
+    }
   }
 
   /**
@@ -308,6 +323,8 @@ public class CheckstylePreferences implements PreferenceGenerator {
     this.blueJ.setExtensionPropertyString(
         CHECKSTYLE_DEFAULT_CONFIG, this.defaultConfigComboBox.getValue()
     );
+
+    this.notifyListeners();
   }
 
   /**
@@ -326,7 +343,8 @@ public class CheckstylePreferences implements PreferenceGenerator {
       this.checkerService.disable();
       ErrorDialog errorDialog = new ErrorDialog(
           "The set Checkstyle configuration was invalid, checking is disabled.",
-          "Disabled checking to prevent errors.",
+          "Please make sure the selected configuration file exists and is compatible\n"
+          + "with version " + pomProperties.getProperty("checkstyle.version") + " of Checkstyle.",
           e.getMessage()
       );
       errorDialog.show();
@@ -340,7 +358,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
    * Shows a FileChooser, and sets the textInput to the files path.
    * If a file was not chosen, it ignores setting the value.
    * 
-   * @param event the event that caused this method to be called 
+   * @param event the event that caused this method to be called \n
    */
   private void onBrowseConfigPath(ActionEvent event) {
     FileChooser fileChooser = new FileChooser();
@@ -354,12 +372,12 @@ public class CheckstylePreferences implements PreferenceGenerator {
   }
 
   /**
-   * Returns a boolean representing the state of the Checkstyle Service.
+   * Returns the CheckerService configured by this class.
    * 
-   * @return a boolean representing the state of the Checkstyle Service
+   * @return the CheckerService configured by this class
    */
-  public boolean isServiceEnabled() {
-    return this.checkerService.isEnabled();
+  public ICheckerService getService() {
+    return this.checkerService;
   }
 
   /**

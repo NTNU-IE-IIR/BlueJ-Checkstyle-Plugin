@@ -10,7 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import no.ntnu.iir.bluej.checkstyle.core.checker.ICheckerService;
+import no.ntnu.iir.bluej.extensions.linting.core.checker.ICheckerService;
 
 /**
  * Represents a Checker service.
@@ -20,6 +20,7 @@ public class CheckerService implements ICheckerService {
   private Checker checker;
   private boolean enabled;
   private List<AuditListener> listeners;
+  
 
   /**
    * Constructs a new CheckerService.
