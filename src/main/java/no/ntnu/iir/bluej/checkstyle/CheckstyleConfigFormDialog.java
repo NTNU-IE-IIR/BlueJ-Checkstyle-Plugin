@@ -11,6 +11,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
@@ -21,6 +22,11 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
   private TextField configNameTextField;
   private TextField configPathTextField;
   private ButtonType saveButtonType;
+  private boolean validConfigName;
+  private boolean validConfigPath;
+  private Label errorLabel;
+
+  private static final String ERROR_CLASS = "error";
 
   /**
    * Instantiates a new Dialog without predefined fields.
@@ -32,6 +38,11 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
     this.setHeaderText("Add a Checkstyle Configuration file");
     this.initPane();
     this.setResultConverter(this::convertResult);
+    this.validConfigName = false;
+    this.validConfigPath = false;
+    this.getDialogPane().getScene().getStylesheets().add(
+        this.getClass().getClassLoader().getResource("styles/text-input.css").toString()
+    );
   }
 
   /**
@@ -49,11 +60,45 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
     this.configPathTextField.setText(configPath);
   }
 
+  /**
+   * Initiates the dialog pane.
+   * Sets up necessary UI elements with bindings and style properties.
+   */
   private void initPane() {
     this.configNameTextField = new TextField();
+    this.configNameTextField.textProperty().addListener((obs, oldValue, newValue) -> {
+      this.validConfigName = (!newValue.equals("Google")
+          && !newValue.equals("Sun")
+          && newValue.length() > 0);
+      
+      if (this.validConfigName) {
+        this.configNameTextField.getStyleClass().remove(ERROR_CLASS);
+      } else {
+        this.configNameTextField.getStyleClass().add(ERROR_CLASS);
+      }
+
+      this.evaluateValidity();
+    });
+
     this.configPathTextField = new TextField();
+    this.configPathTextField.textProperty().addListener((obs, oldValue, newValue) -> {
+      this.validConfigPath = (newValue.length() > 0);
+
+      if (this.validConfigPath) {
+        this.configPathTextField.getStyleClass().remove(ERROR_CLASS);
+      } else {
+        this.configPathTextField.getStyleClass().add(ERROR_CLASS);
+      }
+
+      this.evaluateValidity();
+    });
+
     this.saveButtonType = new ButtonType("Save", ButtonData.OK_DONE);
-    
+
+    this.errorLabel = new Label("One or more of the required fields are invalid/empty.");
+    this.errorLabel.setTextFill(Color.RED);
+    this.errorLabel.setVisible(false);
+
     Button configPathBrowseButton = new Button("Browse");
     configPathBrowseButton.setOnAction(this::onBrowseConfigPath);
     
@@ -62,18 +107,28 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
     formGridPane.setVgap(10);
     formGridPane.setPadding(new Insets(10));
     
-    formGridPane.add(new Label("Config name"), 0, 0);
+    formGridPane.add(new Label("Config name *"), 0, 0);
     formGridPane.add(configNameTextField, 1, 0);
 
-    formGridPane.add(new Label("Config path"), 0, 1);
+    formGridPane.add(new Label("Config path *"), 0, 1);
     formGridPane.add(configPathTextField, 1, 1);
     formGridPane.add(configPathBrowseButton, 2, 1);
+
+    formGridPane.add(this.errorLabel, 0, 2, 3, 1);
 
     this.getDialogPane().setContent(formGridPane);
     
     this.getDialogPane().getButtonTypes().addAll(this.saveButtonType, ButtonType.CANCEL);
+    this.evaluateValidity();
   }
 
+  /**
+   * Converts the result to the wanted output.
+   * 
+   * @param buttonType the type of button pressed
+   * 
+   * @return a Map entry with the two fields as key/values.
+   */
   private SimpleEntry<String, String> convertResult(ButtonType buttonType) {
     SimpleEntry<String, String> result = null;
     
@@ -103,5 +158,14 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
     if (fileChosen != null) {
       this.configPathTextField.setText(fileChosen.getPath());
     }
+  }
+
+  /**
+   * Evaluates the form inputs validity and disables/enabled the save button accordingly.
+   */
+  private void evaluateValidity() {
+    boolean isValid = (this.validConfigName && this.validConfigPath);
+    this.getDialogPane().lookupButton(saveButtonType).setDisable(!isValid);
+    this.errorLabel.setVisible(!isValid);
   }
 }

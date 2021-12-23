@@ -5,13 +5,14 @@ import bluej.extensions2.Extension;
 import java.util.logging.Logger;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerListener;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
-import no.ntnu.iir.bluej.checkstyle.core.handlers.FilesChangeHandler;
-import no.ntnu.iir.bluej.checkstyle.core.handlers.PackageEventHandler;
-import no.ntnu.iir.bluej.checkstyle.core.violations.RuleDefinition;
-import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
+import no.ntnu.iir.bluej.extensions.linting.core.handlers.FilesChangeHandler;
+import no.ntnu.iir.bluej.extensions.linting.core.handlers.PackageEventHandler;
+import no.ntnu.iir.bluej.extensions.linting.core.ui.AuditWindow;
+import no.ntnu.iir.bluej.extensions.linting.core.violations.RuleDefinition;
+import no.ntnu.iir.bluej.extensions.linting.core.violations.ViolationManager;
 
 public class CheckstyleExtension extends Extension {
-  public static final Logger LOGGER = Logger.getLogger(CheckstyleExtension.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(CheckstyleExtension.class.getName());
   
   @Override
   public void startup(BlueJ blueJ) {
@@ -22,35 +23,31 @@ public class CheckstyleExtension extends Extension {
     ViolationManager violationManager = new ViolationManager();
 
     CheckerListener checkerListener = new CheckerListener(violationManager);
-
     checkerService.addListener(checkerListener);
     
-    FilesChangeHandler filesChangeHandler = new FilesChangeHandler(
-        violationManager, 
-        checkerService
-    );
-
     CheckstylePreferences preferences = new CheckstylePreferences(
         blueJ, 
         checkerService, 
         violationManager
     );
 
+    AuditWindow.setTitlePrefix(this.getName());
+    
     CheckstyleStatusBar checkstyleStatusBar = new CheckstyleStatusBar(preferences);
     preferences.addConfigChangeListener(checkstyleStatusBar);
+    AuditWindow.setStatusBar(checkstyleStatusBar);
 
     PackageEventHandler packageEventHandler = new PackageEventHandler(
-        this.getName(),
         violationManager,
-        checkerService,
-        checkstyleStatusBar
+        checkerService
     );
 
-    blueJ.addClassListener(filesChangeHandler);
+    blueJ.addClassListener(new FilesChangeHandler(
+        violationManager,
+        checkerService
+    ));
     blueJ.addPackageListener(packageEventHandler);
-    blueJ.setPreferenceGenerator(
-        new CheckstylePreferences(blueJ, checkerService, violationManager)
-    );
+    blueJ.setPreferenceGenerator(preferences);
     blueJ.setMenuGenerator(
         new CheckstyleMenuBuilder(packageEventHandler)
     );

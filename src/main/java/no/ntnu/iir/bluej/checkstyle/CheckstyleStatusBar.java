@@ -22,15 +22,9 @@ public class CheckstyleStatusBar extends HBox implements CheckstylePreferencesLi
    */
   public CheckstyleStatusBar(CheckstylePreferences preferences) {
     super();
-    this.setSpacing(5);
-    this.setPadding(new Insets(5));
+    this.setSpacing(8);
+    this.setPadding(new Insets(6));
     this.setAlignment(Pos.CENTER_LEFT);
-    this.setStyle(
-        "-fx-background-color: white;"
-        + "-fx-border-style: hidden hidden solid hidden;"
-        + "-fx-border-width: 1;"
-        + "-fx-border-color: gray;"
-    );
 
     this.preferences = preferences;
     this.currentConfigComboBox = new ComboBox<>();
@@ -61,7 +55,7 @@ public class CheckstyleStatusBar extends HBox implements CheckstylePreferencesLi
    */
   @Override
   public void onConfigChanged(String currentConfig) {
-    this.currentConfigComboBox.getItems().setAll(preferences.getConfigKeys());
+    this.currentConfigComboBox.getItems().setAll(this.preferences.getConfigKeys());
     this.currentConfigComboBox.getSelectionModel().select(currentConfig);
     this.updateIndicator();
   }
@@ -70,7 +64,7 @@ public class CheckstyleStatusBar extends HBox implements CheckstylePreferencesLi
    * Updates the status indicator depending on the Services status.
    */
   private void updateIndicator() {
-    if (this.preferences.isServiceEnabled()) {
+    if (this.preferences.getService().isEnabled()) {
       this.statusIndicator.setText("Status: ON");
     } else {
       this.statusIndicator.setText("Status: OFF");

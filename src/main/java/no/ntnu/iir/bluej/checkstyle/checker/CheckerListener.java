@@ -7,9 +7,9 @@ import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import no.ntnu.iir.bluej.checkstyle.core.violations.RuleDefinition;
-import no.ntnu.iir.bluej.checkstyle.core.violations.Violation;
-import no.ntnu.iir.bluej.checkstyle.core.violations.ViolationManager;
+import no.ntnu.iir.bluej.extensions.linting.core.violations.RuleDefinition;
+import no.ntnu.iir.bluej.extensions.linting.core.violations.Violation;
+import no.ntnu.iir.bluej.extensions.linting.core.violations.ViolationManager;
 
 /**
  * Represents a CheckerListener.

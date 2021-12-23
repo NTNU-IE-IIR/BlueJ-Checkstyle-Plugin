@@ -2,7 +2,7 @@ package no.ntnu.iir.bluej.checkstyle;
 
 import java.net.URL;
 import java.util.HashMap;
-import no.ntnu.iir.bluej.checkstyle.core.util.IconMapper;
+import no.ntnu.iir.bluej.extensions.linting.core.util.IconMapper;
 
 /**
  * Represents a IconMapper implementation for Checkstyle.

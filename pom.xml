@@ -6,7 +6,7 @@
 
   <groupId>no.ntnu.iir.bluej.checkstyle</groupId>
   <artifactId>checkstyle4bluej</artifactId>
-  <version>0.2.0-BETA</version>
+  <version>0.2.0-BETA.2</version>
 
   <name>checkstyle4bluej</name>
   <url>https://github.com/NTNU-IE-IIR/BlueJ-Checkstyle-Plugin</url>
@@ -15,6 +15,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <checkstyle.version>9.2</checkstyle.version>
   </properties>
 
   <dependencies>
@@ -26,9 +27,15 @@
     </dependency>
 
     <dependency>
+	    <groupId>com.github.NTNU-IE-IIR</groupId>
+	    <artifactId>BlueJ-Linting-Core</artifactId>
+	    <version>v0.1.0-BETA.3</version>
+	  </dependency>
+
+    <dependency>
       <groupId>com.puppycrawl.tools</groupId>
       <artifactId>checkstyle</artifactId>
-      <version>9.0.1</version>
+      <version>${checkstyle.version}</version>
     </dependency>
 
     <dependency>
@@ -42,33 +49,19 @@
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
       <version>18-ea+4</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-web</artifactId>
       <version>18-ea+7</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>bluej</groupId>
       <artifactId>bluejext2</artifactId>
-      <type>jar</type>
-      <version>5.0.2</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>bluej</groupId>
-      <artifactId>bluejeditor</artifactId>
-      <type>jar</type>
-      <version>5.0.2</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>bluej</groupId>
-      <artifactId>bluejcore</artifactId>
       <type>jar</type>
       <version>5.0.2</version>
       <scope>provided</scope>
@@ -133,6 +126,22 @@
 
     <plugins>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId> 
+        <artifactId>properties-maven-plugin</artifactId> 
+        <version>1.0.0</version> 
+        <executions> 
+          <execution> 
+            <phase>generate-resources</phase> 
+            <goals> 
+              <goal>write-project-properties</goal> 
+            </goals> 
+            <configuration> 
+              <outputFile>${project.build.outputDirectory}/config/pom.properties</outputFile> 
+            </configuration> 
+          </execution> 
+        </executions> 
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.1.0</version>
@@ -169,6 +178,11 @@
   </build>
 
   <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+		</repository>
+
     <repository>
       <id>local_repository</id>
       <name>Repository in the projects lib directory</name>
