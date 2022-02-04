@@ -1,11 +1,11 @@
-package no.ntnu.iir.bluej.checkstyle;
+package no.ntnu.iir.bluej.extensions.linting.checkstyle;
 
 import bluej.extensions2.BlueJ;
 import bluej.extensions2.Extension;
 import java.net.URL;
 import java.util.logging.Logger;
-import no.ntnu.iir.bluej.checkstyle.checker.CheckerListener;
-import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
+import no.ntnu.iir.bluej.extensions.linting.checkstyle.checker.CheckerListener;
+import no.ntnu.iir.bluej.extensions.linting.checkstyle.checker.CheckerService;
 import no.ntnu.iir.bluej.extensions.linting.core.handlers.FilesChangeHandler;
 import no.ntnu.iir.bluej.extensions.linting.core.handlers.PackageEventHandler;
 import no.ntnu.iir.bluej.extensions.linting.core.ui.AuditWindow;

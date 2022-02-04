@@ -1,4 +1,4 @@
-package no.ntnu.iir.bluej.checkstyle;
+package no.ntnu.iir.bluej.extensions.linting.checkstyle;
 
 import bluej.extensions2.BlueJ;
 import bluej.extensions2.PreferenceGenerator;
@@ -29,7 +29,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import no.ntnu.iir.bluej.checkstyle.checker.CheckerService;
+import no.ntnu.iir.bluej.extensions.linting.checkstyle.checker.CheckerService;
 import no.ntnu.iir.bluej.extensions.linting.core.checker.ICheckerService;
 import no.ntnu.iir.bluej.extensions.linting.core.handlers.PackageEventHandler;
 import no.ntnu.iir.bluej.extensions.linting.core.ui.ErrorDialog;

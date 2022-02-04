@@ -1,4 +1,4 @@
-package no.ntnu.iir.bluej.checkstyle;
+package no.ntnu.iir.bluej.extensions.linting.checkstyle;
 
 import java.io.File;
 import java.util.AbstractMap.SimpleEntry;
