@@ -7,6 +7,8 @@ The user is provided the ability to choose what Checkstyle configuration file to
 
 **Note:** It is important that the configuration file is compatible with Checkstyle version 9.2.
 
+![overview-example](assets/overview-example.png)
+
 ## Installing the extension
 
 1. Download the latest version of the extension found [here][1]
@@ -39,8 +41,10 @@ For further information about Extensions in BlueJ see: [BlueJ Extensions][2]
 ## Usage
 
 The Checkstyle Plugin runs checks in BlueJ when a Project/Package is opened and when a class file's state changes.
+The plugin ignores files that have not been compiled.
 
-You can view the violations discovered by choosing `Show Checkstyle overview` from the `Tools` menu.
+You can view the violations discovered by choosing `Show Checkstyle overview` from the `Tools` menu. 
+You can also double click a violation in the overview to highlight the text in the BlueJ editor.
 
 Which configuration file to use can be defined in the BlueJ preferences, or swapped in the Overview window.
 
