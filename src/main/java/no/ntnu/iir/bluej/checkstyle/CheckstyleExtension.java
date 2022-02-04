@@ -2,7 +2,6 @@ package no.ntnu.iir.bluej.checkstyle;
 
 import bluej.extensions2.BlueJ;
 import bluej.extensions2.Extension;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
 import no.ntnu.iir.bluej.checkstyle.checker.CheckerListener;
