@@ -4,9 +4,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>no.ntnu.iir.bluej.checkstyle</groupId>
+  <groupId>no.ntnu.iir.bluej.extensions.linting.checkstyle</groupId>
   <artifactId>checkstyle4bluej</artifactId>
-  <version>0.2.0-BETA.2</version>
+  <version>0.2.0-RC</version>
 
   <name>checkstyle4bluej</name>
   <url>https://github.com/NTNU-IE-IIR/BlueJ-Checkstyle-Plugin</url>
@@ -29,7 +29,7 @@
     <dependency>
 	    <groupId>com.github.NTNU-IE-IIR</groupId>
 	    <artifactId>BlueJ-Linting-Core</artifactId>
-	    <version>v0.1.0-BETA.3</version>
+	    <version>v1.0.0-RC</version>
 	  </dependency>
 
     <dependency>
@@ -63,7 +63,7 @@
       <groupId>bluej</groupId>
       <artifactId>bluejext2</artifactId>
       <type>jar</type>
-      <version>5.0.2</version>
+      <version>3.2</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
@@ -97,7 +97,7 @@
             <archive>
               <manifest>
                 <addClasspath>true</addClasspath>
-                <mainClass>no.ntnu.iir.bluej.checkstyle.CheckstyleExtension</mainClass>
+                <mainClass>no.ntnu.iir.bluej.extensions.linting.checkstyle.CheckstyleExtension</mainClass>
                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                 <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
               </manifest>

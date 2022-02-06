@@ -1,4 +1,4 @@
-package no.ntnu.iir.bluej.checkstyle.checker;
+package no.ntnu.iir.bluej.extensions.linting.checkstyle.checker;
 
 import com.puppycrawl.tools.checkstyle.Checker;
 import com.puppycrawl.tools.checkstyle.ConfigurationLoader;

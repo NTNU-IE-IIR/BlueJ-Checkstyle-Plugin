@@ -1,4 +1,4 @@
-package no.ntnu.iir.bluej.checkstyle;
+package no.ntnu.iir.bluej.extensions.linting.checkstyle;
 
 import bluej.extensions2.BPackage;
 import bluej.extensions2.MenuGenerator;
