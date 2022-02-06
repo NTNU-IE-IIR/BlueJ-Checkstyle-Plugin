@@ -44,11 +44,22 @@ The Checkstyle Plugin runs checks in BlueJ when a Project/Package is opened and 
 The plugin ignores files that have not been compiled.
 
 You can view the violations discovered by choosing `Show Checkstyle overview` from the `Tools` menu. 
-You can also double click a violation in the overview to highlight the text in the BlueJ editor.
 
-Which configuration file to use can be defined in the BlueJ preferences, or swapped in the Overview window.
+![show-example](assets/show-example.png)
+
+From the overview window you can double-click a violation to highlight the text in the BlueJ editor.
+
+
+Which configuration file to use can be defined in the BlueJ preferences.
+
 
 You can find the preferences by choosing `Preferences...` from the `Tools` menu and navigating to the `Extensions` tab.
+
+![preferences-example](assets/preferences-example.png)
+
+The selected default config will be loaded by default, but can be changed from the dropdown menu in the overview window.
+
+![current-config-example](assets/current-config-example.png)
 
 ## Issues
 
