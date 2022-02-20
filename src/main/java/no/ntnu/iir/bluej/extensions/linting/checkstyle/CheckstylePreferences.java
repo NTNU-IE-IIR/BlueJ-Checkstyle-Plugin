@@ -269,17 +269,20 @@ public class CheckstylePreferences implements PreferenceGenerator {
 
       this.configMap = this.objectMapper.readValue(configJsonString, typeReference);
     } catch (Exception e) {
-      this.configMap.put(
-          CHECKSTYLE_BUILTIN_GOOGLE, 
-          this.getClass().getClassLoader().getResource("config/google_checks.xml").toString()
-      );
-
-      this.configMap.put(
-          CHECKSTYLE_BUILTIN_SUN, 
-          this.getClass().getClassLoader().getResource("config/sun_checks.xml").toString()
-      );
+      e.printStackTrace();
     }
 
+    // load provided configs
+    this.configMap.put(
+        CHECKSTYLE_BUILTIN_GOOGLE, 
+        this.getClass().getClassLoader().getResource("config/google_checks.xml").toString()
+    );
+
+    this.configMap.put(
+        CHECKSTYLE_BUILTIN_SUN, 
+        this.getClass().getClassLoader().getResource("config/sun_checks.xml").toString()
+    );
+    
     this.defaultConfigComboBox.setValue(
         this.blueJ.getExtensionPropertyString(CHECKSTYLE_DEFAULT_CONFIG, CHECKSTYLE_BUILTIN_GOOGLE)
     );
@@ -310,7 +313,11 @@ public class CheckstylePreferences implements PreferenceGenerator {
     String configMapAsString = "";
 
     try {
-      configMapAsString = this.objectMapper.writeValueAsString(this.configMap);
+      // save everything but the provided configs
+      HashMap<String, String> copy = new HashMap<>(this.configMap);  
+      copy.remove(CHECKSTYLE_BUILTIN_GOOGLE);
+      copy.remove(CHECKSTYLE_BUILTIN_SUN);
+      configMapAsString = this.objectMapper.writeValueAsString(copy);
     } catch (Exception e) {
       e.printStackTrace();
     }
