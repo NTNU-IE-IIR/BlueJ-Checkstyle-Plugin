@@ -57,8 +57,8 @@ public class CheckstyleExtension extends Extension {
   @Override
   public boolean isCompatible() {
     int versionMajor = Extension.getExtensionsAPIVersionMajor();
-    int versionMinor = Extension.getExtensionsAPIVersionMinor();
-    return (versionMajor == 3 && versionMinor == 2);
+
+    return (versionMajor == 3);
   }
 
   @Override
