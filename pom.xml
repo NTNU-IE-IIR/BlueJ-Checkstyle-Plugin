@@ -18,11 +18,21 @@
     <tag>HEAD</tag>
   </scm>
 
+  <!--
+  BlueJ 5.1.0 uses the following versions of Java and JavaFX:
+      Java: 17.0.4
+      JavaFX: 17.0.3+2
+
+  Note on <scope>provided</scope> in the dependency section:
+         We use this scope to mark dependencies that should be provided at runtime by JDK or a container.
+         (https://www.baeldung.com/maven-dependency-scopes)
+  -->
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <checkstyle.version>10.3.4</checkstyle.version>
+    <!-- Use a JavaFX version closest to the version used by BlueJ (17.0.3+2 is not available on the Maven repo) -->
     <javafx.version>17.0.2</javafx.version>
   </properties>
 
