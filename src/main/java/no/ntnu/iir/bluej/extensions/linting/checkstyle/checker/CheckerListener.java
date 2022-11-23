@@ -13,11 +13,11 @@ import no.ntnu.iir.bluej.extensions.linting.core.violations.ViolationManager;
 
 /**
  * Represents a CheckerListener.
- * Responsible for adding errors to the ViolationManager, 
+ * Responsible for adding errors to the ViolationManager,
  * and purging old errors from the ViolationManager when a file is reprocessed.
  */
 public class CheckerListener implements AuditListener {
-  private ViolationManager violationManager;
+  private final ViolationManager violationManager;
 
   public CheckerListener(ViolationManager violationManager) {
     this.violationManager = violationManager;
@@ -25,27 +25,38 @@ public class CheckerListener implements AuditListener {
 
   /**
    * Fired when Checkstyle finds a violation in the file being processed.
-   * Adds violations to the ViolationManager instance. 
+   * Adds violations to the ViolationManager instance.
    */
   @Override
   public void addError(AuditEvent auditEvent) {
-    String fileName = auditEvent.getFileName();
-    File file = new File(fileName);
-    BClass sourceBClass = this.violationManager.getBlueClass(file.getPath());
+    Violation violation = createViolationFrom(auditEvent);
+    addViolationToManager(violation, auditEvent.getFileName());
+  }
+
+  private Violation createViolationFrom(AuditEvent auditEvent) {
     RuleDefinition ruleDefinition = new RuleDefinition(
-        auditEvent.getMessage(), 
-        auditEvent.getModuleId(), 
-        null, 
-        auditEvent.getSeverityLevel().getName(), 
+        auditEvent.getMessage(),
+        auditEvent.getModuleId(),
+        null,
+        auditEvent.getSeverityLevel().getName(),
         null
     );
-    Violation violation = new Violation(
-        auditEvent.getMessage(), 
-        sourceBClass, 
+    BClass sourceClass = getSourceClass(auditEvent);
+    return new Violation(
+        auditEvent.getMessage(),
+        sourceClass,
         new TextLocation(auditEvent.getLine(), auditEvent.getColumn()),
         ruleDefinition
     );
+  }
 
+  private BClass getSourceClass(AuditEvent auditEvent) {
+    String fileName = auditEvent.getFileName();
+    File file = new File(fileName);
+    return this.violationManager.getBlueClass(file.getPath());
+  }
+
+  private void addViolationToManager(Violation violation, String fileName) {
     List<Violation> violations = violationManager.getViolations(fileName);
     if (violations != null) {
       violations.add(violation);
@@ -67,6 +78,12 @@ public class CheckerListener implements AuditListener {
     // do nothing
   }
 
+  /**
+   * This method is called when the CheckStyle audit is started.
+   * Make sure that necessary data is initialized for the audit.
+   *
+   * @param auditEvent the event details
+   */
   @Override
   public void auditStarted(AuditEvent auditEvent) {
     try {
@@ -83,7 +100,7 @@ public class CheckerListener implements AuditListener {
 
   /**
    * Fired when a file is starting to get processed.
-   * Should delete the old entry, in order to get a new List which 
+   * Should delete the old entry, in order to get a new List which
    * reflects the current state of the file.
    */
   @Override
