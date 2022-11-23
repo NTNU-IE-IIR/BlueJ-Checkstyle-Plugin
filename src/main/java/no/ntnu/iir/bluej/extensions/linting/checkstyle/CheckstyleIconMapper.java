@@ -9,7 +9,7 @@ import no.ntnu.iir.bluej.extensions.linting.core.util.IconMapper;
  * Responsible for mapping String values to an icon URL.
  */
 public class CheckstyleIconMapper implements IconMapper {
-  private HashMap<String, URL> iconMap;
+  private final HashMap<String, URL> iconMap;
 
   /**
    * Instantiates the IconMapper. 
@@ -17,13 +17,19 @@ public class CheckstyleIconMapper implements IconMapper {
    */
   public CheckstyleIconMapper() {
     this.iconMap = new HashMap<>();
+    registerMappingFor("warning");
+    registerMappingFor("error");
+  }
+
+  /**
+   * Save a new mapping in the registry: icon name -> URL to the icon
+   * @param name Name of the icon
+   */
+  private void registerMappingFor(String name) {
+    final String filePath = "images/" + name + ".png";
     this.iconMap.put(
-        "warning", 
-        this.getClass().getClassLoader().getResource("images/warning.png")
-    );
-    this.iconMap.put(
-        "error",
-        this.getClass().getClassLoader().getResource("images/error.png")
+        name,
+        this.getClass().getClassLoader().getResource(filePath)
     );
   }
 
