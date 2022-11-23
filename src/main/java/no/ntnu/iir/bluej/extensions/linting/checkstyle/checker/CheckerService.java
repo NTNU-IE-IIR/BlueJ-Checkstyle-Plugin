@@ -19,8 +19,8 @@ import no.ntnu.iir.bluej.extensions.linting.core.checker.ICheckerService;
 public class CheckerService implements ICheckerService {
   private Checker checker;
   private boolean enabled;
-  private List<AuditListener> listeners;
-  
+  private final List<AuditListener> listeners;
+
 
   /**
    * Constructs a new CheckerService.
@@ -28,14 +28,16 @@ public class CheckerService implements ICheckerService {
   public CheckerService() {
     this.enabled = false;
     this.listeners = new ArrayList<>();
-    this.initChecker();
+    this.createNewChecker();
   }
 
-  private void initChecker() {
+  /**
+   * Create a new checker and copy over all the existing listeners.
+   */
+  private void createNewChecker() {
     this.checker = new Checker();
     this.checker.setBasedir(null);
     this.checker.setModuleClassLoader(Checker.class.getClassLoader());
-
     for (AuditListener listener : this.listeners) {
       this.checker.addListener(listener);
     }
@@ -57,15 +59,14 @@ public class CheckerService implements ICheckerService {
   }
 
   /**
-   * Configures Checkstyle to use given configuration.
+   * Configures Checkstyle to use given style configuration.
    * 
-   * @param configPath the path to the configuration file to use
-   * 
+   * @param configPath the path to the style configuration file to use
    * @throws CheckstyleException if an error condition within Checkstyle occurs.
    */
-  public void setConfiguration(String configPath) throws CheckstyleException {
+  public void configure(String configPath) throws CheckstyleException {
     Properties checkstyleProperties = new Properties();
-    this.initChecker(); // re init checker to prevent using two configs
+    this.createNewChecker(); // re init checker to prevent using two configs
     this.checker.configure(ConfigurationLoader.loadConfiguration(
         configPath,
         new PropertiesExpander(checkstyleProperties)
@@ -73,8 +74,8 @@ public class CheckerService implements ICheckerService {
   }
 
   /**
-   * Adds a AuditListener to the Checker.
-   * 
+   * Adds an AuditListener to the Checker.
+   *
    * @param listener the AuditListener to add to the Checker.
    */
   public void addListener(AuditListener listener) {
@@ -83,45 +84,30 @@ public class CheckerService implements ICheckerService {
   }
 
   /**
-   * Removes a AuditListener from the Checker.
-   * 
-   * @param listener the AuditListener to remove from the Checker.
-   */
-  public void removeListener(AuditListener listener) {
-    this.listeners.remove(listener);
-    this.checker.removeListener(listener);
-  }
-
-  /**
    * Checks a single file using Checkstyle.
-   * 
+   *
    * @param fileToCheck a File to check with Checkstyle.
-   * @param charset the Files charset encoding.
-   * 
+   * @param charset     the File's charset encoding.
    * @throws UnsupportedEncodingException if an unsupported encoding is used.
-   * @throws CheckstyleException if an error condition within Checkstyle occurs.
+   * @throws CheckstyleException          if an error condition within Checkstyle occurs.
    */
   public void checkFile(
       File fileToCheck,
       String charset
   ) throws UnsupportedEncodingException, CheckstyleException {
-    if (this.enabled) {
-      this.checker.setCharset(charset);
-      this.checker.process(List.of(fileToCheck));
-    }
+    this.checkFiles(List.of(fileToCheck), charset);
   }
 
   /**
    * Checks a list of files using Checkstyle.
-   * 
+   *
    * @param filesToCheck a List of Files to check with Checkstyle.
-   * @param charset the Files charset encoding.
-   * 
+   * @param charset      the Files charset encoding.
    * @throws UnsupportedEncodingException if an unsupported encoding is used.
-   * @throws CheckstyleException if an error condition within Checkstyle occurs.
+   * @throws CheckstyleException          if an error condition within Checkstyle occurs.
    */
   public void checkFiles(
-      List<File> filesToCheck, 
+      List<File> filesToCheck,
       String charset
   ) throws UnsupportedEncodingException, CheckstyleException {
     if (this.enabled) {

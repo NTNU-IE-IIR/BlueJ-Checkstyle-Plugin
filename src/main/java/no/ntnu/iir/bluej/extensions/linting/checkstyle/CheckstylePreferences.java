@@ -343,7 +343,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
     this.violationManager.clearViolations();
 
     try {
-      this.checkerService.setConfiguration(configUri);
+      this.checkerService.configure(configUri);
       this.checkerService.enable();
       PackageEventHandler.checkAllPackagesOpen(this.violationManager, this.checkerService);
     } catch (CheckstyleException e) {
