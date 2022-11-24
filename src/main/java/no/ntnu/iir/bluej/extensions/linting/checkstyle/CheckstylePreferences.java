@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -39,19 +40,20 @@ import no.ntnu.iir.bluej.extensions.linting.core.violations.ViolationManager;
  * Represents a Preferences class.
  * Responsible for loading and saving preferences utilizing BlueJ internals.
  * Also responsible for generating the configuration options in the Preferences tab in BlueJ.
+ * TODO - the word "also" here is a hint that the class has too many responsibilities
  */
 public class CheckstylePreferences implements PreferenceGenerator {
-  private BlueJ blueJ;
+  private final BlueJ blueJ;
   private String currentConfig;
-  private CheckerService checkerService;
-  private ViolationManager violationManager;
+  private final CheckerService checkerService;
+  private final ViolationManager violationManager;
   private VBox pane;
   private ComboBox<String> defaultConfigComboBox;
   private HashMap<String, String> configMap; // (config name, config path)
   private TextField addConfigPathInput;
   private TableView<Entry<String, String>> tableView;
-  private ObjectMapper objectMapper;
-  private List<CheckstylePreferencesListener> listeners;
+  private final ObjectMapper objectMapper;
+  private final List<CheckstylePreferencesListener> listeners;
   private Properties pomProperties;
   
   private static final String CHECKSTYLE_DEFAULT_CONFIG = "Checkstyle.DefaultConfig";
@@ -59,8 +61,12 @@ public class CheckstylePreferences implements PreferenceGenerator {
   private static final String CHECKSTYLE_BUILTIN_GOOGLE = "Google";
   private static final String CHECKSTYLE_BUILTIN_SUN = "Sun";
 
+  private static final Logger LOGGER = Logger.getLogger(
+      CheckstylePreferences.class.getName()
+  );
+
   /**
-   * Constructs a new PreferencesGenerator implemenetation.
+   * Constructs a new PreferencesGenerator implementation.
    * 
    * @param blueJ the BlueJ instance to load and save preferences to
    * @param checkerService the CheckerService instance to configure on save
@@ -85,6 +91,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
    * The pane holds all the UI elements that will be shown in the Preferences tab.
    */
   public void initPane() {
+    // TODO - this method clearly needs a refactor
     this.pane = new VBox();
     this.pane.setSpacing(10);
 
@@ -310,28 +317,35 @@ public class CheckstylePreferences implements PreferenceGenerator {
    */
   @Override
   public void saveValues() {
-    String configMapAsString = "";
+    String configMapAsString = copyConfigWithoutBuiltIn();
+    this.blueJ.setExtensionPropertyString(
+        CHECKSTYLE_CONFIG_MAP,
+        configMapAsString
+    );
+    this.blueJ.setExtensionPropertyString(
+        CHECKSTYLE_DEFAULT_CONFIG,
+        this.defaultConfigComboBox.getValue()
+    );
 
+    this.notifyListeners();
+  }
+
+  /**
+   * Create a copy of the configuration, skip the built-in values
+   * @return Copy of the configuration as a JSON string
+   */
+  private String copyConfigWithoutBuiltIn() {
+    String configMapAsString = "";
     try {
-      // save everything but the provided configs
-      HashMap<String, String> copy = new HashMap<>(this.configMap);  
+      // Copy everything but the provided configs
+      HashMap<String, String> copy = new HashMap<>(this.configMap);
       copy.remove(CHECKSTYLE_BUILTIN_GOOGLE);
       copy.remove(CHECKSTYLE_BUILTIN_SUN);
       configMapAsString = this.objectMapper.writeValueAsString(copy);
     } catch (Exception e) {
-      e.printStackTrace();
+      LOGGER.severe("Could not copy configuration: " + e.getMessage());
     }
-
-    this.blueJ.setExtensionPropertyString(
-        CHECKSTYLE_CONFIG_MAP, 
-        configMapAsString
-    ); 
-
-    this.blueJ.setExtensionPropertyString(
-        CHECKSTYLE_DEFAULT_CONFIG, this.defaultConfigComboBox.getValue()
-    );
-
-    this.notifyListeners();
+    return configMapAsString;
   }
 
   /**
@@ -362,7 +376,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
 
   /**
    * Handles click events for the browseConfigPathButton.
-   * Shows a FileChooser, and sets the textInput to the files path.
+   * Shows a FileChooser, and sets the textInput to the file path.
    * If a file was not chosen, it ignores setting the value.
    * 
    * @param event the event that caused this method to be called \n
@@ -407,7 +421,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
 
   /**
    * Removes a config change listener to the list of listeners.
-   * 
+   *
    * @param listener the listener to remove from the list of listeners
    */
   public void removeConfigChangeListener(CheckstylePreferencesListener listener) {
