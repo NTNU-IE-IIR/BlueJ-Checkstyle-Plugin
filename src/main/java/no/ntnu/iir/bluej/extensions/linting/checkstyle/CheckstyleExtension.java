@@ -18,12 +18,6 @@ import no.ntnu.iir.bluej.extensions.linting.core.violations.ViolationManager;
 public class CheckstyleExtension extends Extension {
   private static final Logger LOGGER = Logger.getLogger(CheckstyleExtension.class.getName());
 
-  /**
-   * Initialization of the extension.
-   * This method is called by BlueJ when the extension can start its activity.
-   *
-   * @param blueJ A proxy object representing the BlueJ editor
-   */
   @Override
   public void startup(BlueJ blueJ) {
     LOGGER.info("Starting " + this.getName());
@@ -68,21 +62,11 @@ public class CheckstyleExtension extends Extension {
     return (versionMajor == 3);
   }
 
-  /**
-   * Version of the extension.
-   *
-   * @return Version number, as major.minor.patch
-   */
   @Override
   public String getVersion() {
     return this.getClass().getPackage().getImplementationVersion();
   }
 
-  /**
-   * URL where more information about the extension is available.
-   *
-   * @return a URL instance to the Git repository of this extension.
-   */
   @Override
   public URL getURL() {
     try {
@@ -92,21 +76,11 @@ public class CheckstyleExtension extends Extension {
     }
   }
 
-  /**
-   * A short name of the extension, will be displayed in BlueJ menu/dialog.
-   *
-   * @return The name of the extension.
-   */
   @Override
   public String getName() {
     return this.getClass().getPackage().getImplementationTitle();
   }
 
-  /**
-   * A human-readable description of the extension.
-   *
-   * @return Brief description of the extension.
-   */
   @Override
   public String getDescription() {
     return "Checkstyle for BlueJ.";
