@@ -16,8 +16,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -50,6 +52,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
   private VBox pane;
   private ComboBox<String> defaultConfigComboBox;
   private HashMap<String, String> configMap; // (config name, config path)
+  // TODO - is this field used in any way? The value is set, but is it added to the UI somewhere?
   private TextField addConfigPathInput;
   private TableView<Entry<String, String>> tableView;
   private final ObjectMapper objectMapper;
@@ -91,27 +94,34 @@ public class CheckstylePreferences implements PreferenceGenerator {
    * The pane holds all the UI elements that will be shown in the Preferences tab.
    */
   public void initPane() {
-    // TODO - this method clearly needs a refactor
-    this.pane = new VBox();
-    this.pane.setSpacing(10);
-
-    this.defaultConfigComboBox = new ComboBox<>();
-    HBox defaultConfigHBox = new HBox();
-    defaultConfigHBox.setAlignment(Pos.CENTER_LEFT);
-    defaultConfigHBox.setSpacing(5);
-    defaultConfigHBox.getChildren().addAll(
-        new Label("Select a default config"),
-        this.defaultConfigComboBox
+    createConfigPathInput();
+    createBrowseButton();
+    createMainPane();
+    ObservableList<Node> paneChildren = this.pane.getChildren();
+    paneChildren.addAll(
+        createDefaultConfigComboBox(),
+        createTableView(),
+        createActionBox()
     );
+  }
 
+  private void createConfigPathInput() {
     this.addConfigPathInput = new TextField();
     this.addConfigPathInput.promptTextProperty().set("Config file path");
+  }
 
+  private void createBrowseButton() {
+    // TODO - is this button used anywhere?
     Button browseConfigPathButton = new Button("Browse");
     browseConfigPathButton.setOnAction(this::onBrowseConfigPath);
+  }
 
-    this.tableView = new TableView<>();
+  private void createMainPane() {
+    this.pane = new VBox();
+    this.pane.setSpacing(10);
+  }
 
+  private TableView<Entry<String, String>> createTableView() {
     TableColumn<Entry<String, String>, String> configNameColumn = new TableColumn<>("Config name");
     configNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
     configNameColumn.setCellValueFactory(param ->
@@ -141,11 +151,46 @@ public class CheckstylePreferences implements PreferenceGenerator {
     configPathColumn.setMinWidth(400);
     configPathColumn.setMaxWidth(400);
 
+    this.tableView = new TableView<>();
     this.tableView.getColumns().add(configNameColumn);
     this.tableView.getColumns().add(configPathColumn);
     this.tableView.setMaxHeight(200);
-
     this.configMap.entrySet().forEach(this.tableView.getItems()::add);
+    return this.tableView;
+  }
+
+  /**
+   * Create rules for disabling the editing and deletion buttons when a built-in item is selected.
+   * @param editButton The "Edit" button
+   * @param deleteButton The "Delete" button
+   */
+  private void disableButtonsForBuiltInConfigs(Button editButton, Button deleteButton) {
+    this.tableView.getSelectionModel().selectedItemProperty().addListener(
+        (obs, oldSelection, newSelection) -> {
+          boolean editingDisabled = isBuiltInItem(newSelection);
+          deleteButton.setDisable(editingDisabled);
+          editButton.setDisable(editingDisabled);
+        }
+    );
+  }
+
+  /**
+   * Check whether the provided selection contains a built-in configuration item.
+   * @param selection A selection item. Null when no item selected.
+   * @return True when the selected item is a built-in configuration item, false otherwise.
+   *     Also returns false when no item is selected.
+   */
+  private boolean isBuiltInItem(Entry<String, String> selection) {
+    boolean isBuiltIn = false;
+    if (selection != null) {
+      String configKey = selection.getKey();
+      isBuiltIn = configKey.equals(CHECKSTYLE_BUILTIN_GOOGLE)
+          || configKey.equals(CHECKSTYLE_BUILTIN_SUN);
+    }
+    return isBuiltIn;
+  }
+
+  private Button createAddButton() {
     Button addButton = new Button("Add config");
     addButton.setOnAction(event -> {
       CheckstyleConfigFormDialog dialog = new CheckstyleConfigFormDialog();
@@ -158,19 +203,21 @@ public class CheckstylePreferences implements PreferenceGenerator {
         this.reloadUiData();
       }
     });
+    return addButton;
+  }
 
+  private Button createEditButton() {
     Button editButton = new Button("Edit selected");
+    editButton.setDisable(true);
+
     editButton.setOnAction(event -> {
       Entry<String, String> selected = this.tableView.getSelectionModel().getSelectedItem();
       CheckstyleConfigFormDialog dialog = new CheckstyleConfigFormDialog(
           selected.getKey(),
           selected.getValue()
       );
-
       dialog.showAndWait();
-
       SimpleEntry<String, String> result = dialog.getResult();
-
       if (result != null) {
         this.configMap.remove(selected.getKey());
         this.configMap.put(result.getKey(), result.getValue());
@@ -178,6 +225,10 @@ public class CheckstylePreferences implements PreferenceGenerator {
       }
     });
 
+    return editButton;
+  }
+
+  private Button createDeleteButton() {
     Button deleteButton = new Button("Delete selected");
     deleteButton.setOnAction(event -> {
       Entry<String, String> selected = this.tableView.getSelectionModel().getSelectedItem();
@@ -187,31 +238,35 @@ public class CheckstylePreferences implements PreferenceGenerator {
 
     // default buttons to be disabled
     deleteButton.setDisable(true);
-    editButton.setDisable(true);
+    return deleteButton;
+  }
 
-    // handle disable edit/delete buttons for builtin config files
-    this.tableView.getSelectionModel().selectedItemProperty().addListener(
-        (obs, oldSelection, newSelection) -> {
-          deleteButton.setDisable(true);
-          editButton.setDisable(true);
-          if (newSelection != null) {
-            String configKey = newSelection.getKey();
-            if (!configKey.equals(CHECKSTYLE_BUILTIN_GOOGLE) 
-                && !configKey.equals(CHECKSTYLE_BUILTIN_SUN)) {
-              deleteButton.setDisable(false);
-              editButton.setDisable(false);
-            }
-          }
-        }
+  private HBox createActionBox() {
+    Button addButton = createAddButton();
+    Button editButton = createEditButton();
+    Button deleteButton = createDeleteButton();
+    disableButtonsForBuiltInConfigs(editButton, deleteButton);
+    HBox actionBox = new HBox();
+    actionBox.getChildren().addAll(addButton, editButton, deleteButton);
+    actionBox.setSpacing(5);
+    return actionBox;
+  }
+
+
+  /**
+   * Create a ComboBox for the default configuration, wrap it in an HBox.
+   * @return HBox pane wrapping the ComboBox
+   */
+  private HBox createDefaultConfigComboBox() {
+    this.defaultConfigComboBox = new ComboBox<>();
+    HBox defaultConfigBox = new HBox();
+    defaultConfigBox.setAlignment(Pos.CENTER_LEFT);
+    defaultConfigBox.setSpacing(5);
+    defaultConfigBox.getChildren().addAll(
+        new Label("Select a default config"),
+        this.defaultConfigComboBox
     );
-
-    HBox actionHBox = new HBox();
-    actionHBox.getChildren().addAll(addButton, editButton, deleteButton);
-    actionHBox.setSpacing(5);
-
-    pane.getChildren().add(defaultConfigHBox);
-    pane.getChildren().add(this.tableView);
-    pane.getChildren().add(actionHBox);
+    return defaultConfigBox;
   }
 
   /**
@@ -331,7 +386,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
   }
 
   /**
-   * Create a copy of the configuration, skip the built-in values
+   * Create a copy of the configuration, skip the built-in values.
    * @return Copy of the configuration as a JSON string
    */
   private String copyConfigWithoutBuiltIn() {
