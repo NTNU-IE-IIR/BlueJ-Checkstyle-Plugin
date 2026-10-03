@@ -32,6 +32,13 @@ mvn clean verify           # also what tools/buildAndInstallLocally.ps1 runs bef
   shaded jar into `C:\Program Files\BlueJ\lib\extensions2\`. On macOS/Linux, do the equivalent manually:
   build with `mvn clean verify`, then copy the non-`-original` jar from `target/` into one of BlueJ's
   `extensions2` directories (see README's install table) and restart BlueJ to test.
+- Debugging on macOS: `tools/debugInBlueJ.sh [--suspend] [--no-build] [--port <port>]` builds, installs
+  the shaded jar into `BlueJ.app/Contents/Java/extensions2/` (replacing older `checkstyle4bluej-*.jar`s),
+  and starts BlueJ under a JDK 21 with a JDWP agent on `localhost:5005`; attach with IntelliJ's "Remote
+  JVM Debug". `--suspend` makes BlueJ wait for the debugger, to break in `CheckstyleExtension.startup()`.
+  BlueJ's JavaFX jars must be on the classpath, not the module path (module path → `IllegalAccessError`).
+  `LOGGER` output goes to the terminal; `printStackTrace` output goes to
+  `~/Library/Preferences/org.bluej/bluej-debuglog.txt`.
 - `tools/updateBlueJdeps.ps1` (Windows) and `tools/updateBlueJdeps.sh` (macOS, zsh) install BlueJ's own
   `bluej.jar` from a local BlueJ installation into the repo's local Maven repo at `lib/` as
   `bluej:bluej:<version>`, via `mvn install:install-file`. Both take the version as an argument (e.g.
