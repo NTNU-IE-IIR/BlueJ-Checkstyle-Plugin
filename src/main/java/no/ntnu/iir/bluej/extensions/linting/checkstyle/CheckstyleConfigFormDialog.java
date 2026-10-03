@@ -69,7 +69,7 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
     this.configNameTextField.textProperty().addListener((obs, oldValue, newValue) -> {
       this.validConfigName = (!newValue.equals("Google")
           && !newValue.equals("Sun")
-          && newValue.length() > 0);
+          && !newValue.isEmpty());
       
       if (this.validConfigName) {
         this.configNameTextField.getStyleClass().remove(ERROR_CLASS);
@@ -82,7 +82,7 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
 
     this.configPathTextField = new TextField();
     this.configPathTextField.textProperty().addListener((obs, oldValue, newValue) -> {
-      this.validConfigPath = (newValue.length() > 0);
+      this.validConfigPath = (!newValue.isEmpty());
 
       if (this.validConfigPath) {
         this.configPathTextField.getStyleClass().remove(ERROR_CLASS);

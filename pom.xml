@@ -1,177 +1,194 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>no.ntnu.iir.bluej.extensions.linting.checkstyle</groupId>
-  <artifactId>checkstyle4bluej</artifactId>
-  <version>1.0.0</version>
+    <groupId>no.ntnu.iir.bluej.extensions.linting.checkstyle</groupId>
+    <artifactId>checkstyle4bluej</artifactId>
+    <version>1.1.0</version>
 
-  <name>checkstyle4bluej</name>
-  <url>https://github.com/NTNU-IE-IIR/BlueJ-Checkstyle-Plugin</url>
+    <name>checkstyle4bluej</name>
+    <url>https://github.com/NTNU-IE-IIR/BlueJ-Checkstyle-Plugin</url>
 
-  <scm>
-    <connection>scm:git:${project.scm.url}</connection>
-    <developerConnection>scm:git:${project.scm.url}</developerConnection>
-    <url>git@github.com:NTNU-IE-IIR/BlueJ-Checkstyle-Plugin</url>
-    <tag>v1.0.0</tag>
-  </scm>
+    <scm>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+        <url>https://github.com/NTNU-IE-IIR/BlueJ-Checkstyle-Plugin.git</url>
+        <tag>v1.1.0</tag>
+    </scm>
 
-  <!--
-  BlueJ 5.1.0 uses the following versions of Java and JavaFX:
-      Java: 17.0.4
-      JavaFX: 17.0.3+2
+    <!--
+    BlueJ 6.0.0 uses the following versions of Java and JavaFX:
+        Java: 21.0.6
+        JavaFX: 23.0.2+3
 
-  Note on <scope>provided</scope> in the dependency section:
-         We use this scope to mark dependencies that should be provided at runtime by JDK or a container.
-         (https://www.baeldung.com/maven-dependency-scopes)
-  -->
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <checkstyle.version>10.3.4</checkstyle.version>
-    <!-- Use a JavaFX version closest to the version used by BlueJ (17.0.3+2 is not available on the Maven repo) -->
-    <javafx.version>17.0.2</javafx.version>
-  </properties>
+    Note on <scope>provided</scope> in the dependency section:
+           We use this scope to mark dependencies that should be provided at runtime by JDK or a container.
+           (https://www.baeldung.com/maven-dependency-scopes)
+    -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>21</maven.compiler.release>
+        <checkstyle.version>14.1.0</checkstyle.version>
+        <!-- Use a JavaFX version closest to the version used by BlueJ (17.0.3+2 is not available on the Maven repo) -->
+        <javafx.version>23.0.2</javafx.version>
+    </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.13.0</version>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.22.3</version>
+        </dependency>
 
-    <dependency>
-	    <groupId>com.github.NTNU-IE-IIR</groupId>
-	    <artifactId>BlueJ-Linting-Core</artifactId>
-	    <version>1.1.0</version>
-	  </dependency>
+        <dependency>
+            <groupId>com.github.NTNU-IE-IIR</groupId>
+            <artifactId>BlueJ-Linting-Core</artifactId>
+            <version>1.2.1</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.puppycrawl.tools</groupId>
-      <artifactId>checkstyle</artifactId>
-      <version>${checkstyle.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${checkstyle.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-controls</artifactId>
-      <version>${javafx.version}</version>
-      <scope>provided</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-web</artifactId>
-      <version>${javafx.version}</version>
-      <scope>provided</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>${javafx.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>bluej</groupId>
-      <artifactId>bluejext2</artifactId>
-      <type>jar</type>
-      <version>3.3</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>bluej</groupId>
+            <artifactId>bluej</artifactId>
+            <type>jar</type>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-  <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-      <plugins>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-          <configuration>
-            <finalName>${project.artifactId}-${project.version}-original</finalName>
-            <archive>
-              <manifest>
-                <addClasspath>true</addClasspath>
-                <mainClass>no.ntnu.iir.bluej.extensions.linting.checkstyle.CheckstyleExtension</mainClass>
-                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-              </manifest>
-            </archive>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <build>
+        <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+            <plugins>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.0.2</version>
+                    <configuration>
+                        <finalName>${project.artifactId}-${project.version}-original</finalName>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <mainClass>no.ntnu.iir.bluej.extensions.linting.checkstyle.CheckstyleExtension
+                                </mainClass>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                        </archive>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
-    <plugins>
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
-        <configuration>
-          <scmCommentPrefix>[ci skip]</scmCommentPrefix>
-          <tagNameFormat>v@{project.version}</tagNameFormat>
-        </configuration>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId> 
-        <artifactId>properties-maven-plugin</artifactId> 
-        <version>1.0.0</version> 
-        <executions> 
-          <execution> 
-            <phase>generate-resources</phase> 
-            <goals> 
-              <goal>write-project-properties</goal> 
-            </goals> 
-            <configuration> 
-              <outputFile>${project.build.outputDirectory}/config/pom.properties</outputFile> 
-            </configuration> 
-          </execution> 
-        </executions> 
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <goals>
-             <goal>shade</goal>
-            </goals>
-            <configuration>
-              <outputFile>./target/${project.artifactId}-${project.version}.jar</outputFile>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <artifactSet>
-                <excludes>
-                  <exclude>org.openjfx:*</exclude>
-                  <exclude>junit:*</exclude>
-                  <exclude>bluej:*</exclude>
-                </excludes>
-              </artifactSet>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <scmCommentPrefix>[ci skip]</scmCommentPrefix>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
 
-  <repositories>
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-		</repository>
+            <!-- Generates SystemInfo.java from src/main/java-templates/ (fills in ${project.version}) -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>templating-maven-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>filter-sources</id>
+                        <goals>
+                            <goal>filter-sources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-    <repository>
-      <id>local_repository</id>
-      <name>Repository in the projects lib directory</name>
-      <layout>default</layout>
-      <url>file:///${project.basedir}/lib</url>
-      <releases><enabled>true</enabled></releases>
-    </repository>
-  </repositories>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>write-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.build.outputDirectory}/config/pom.properties</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>./target/${project.artifactId}-${project.version}.jar</outputFile>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.openjfx:*</exclude>
+                                    <exclude>junit:*</exclude>
+                                    <exclude>bluej:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+        <repository>
+            <id>local_repository</id>
+            <name>Repository in the projects lib directory</name>
+            <layout>default</layout>
+            <url>file:///${project.basedir}/lib</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 </project>

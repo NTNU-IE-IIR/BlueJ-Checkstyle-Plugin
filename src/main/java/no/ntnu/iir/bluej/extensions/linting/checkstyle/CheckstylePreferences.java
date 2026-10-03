@@ -60,7 +60,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
   private static final String CHECKSTYLE_BUILTIN_SUN = "Sun";
 
   /**
-   * Constructs a new PreferencesGenerator implemenetation.
+   * Constructs a new PreferencesGenerator implementation.
    * 
    * @param blueJ the BlueJ instance to load and save preferences to
    * @param checkerService the CheckerService instance to configure on save
@@ -331,7 +331,8 @@ public class CheckstylePreferences implements PreferenceGenerator {
         CHECKSTYLE_DEFAULT_CONFIG, this.defaultConfigComboBox.getValue()
     );
 
-    this.notifyListeners();
+    // apply the saved default config immediately (also notifies listeners)
+    this.setConfig(this.defaultConfigComboBox.getValue());
   }
 
   /**
