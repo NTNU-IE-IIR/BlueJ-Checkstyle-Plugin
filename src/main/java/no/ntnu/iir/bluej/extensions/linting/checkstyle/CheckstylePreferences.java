@@ -10,7 +10,9 @@ import java.io.InputStream;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -48,6 +50,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
   private VBox pane;
   private ComboBox<String> defaultConfigComboBox;
   private HashMap<String, String> configMap; // (config name, config path)
+  private Set<String> protectedConfigs; // built-in and provided configs, cannot be edited/deleted
   private TextField addConfigPathInput;
   private TableView<Entry<String, String>> tableView;
   private ObjectMapper objectMapper;
@@ -74,6 +77,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
     this.checkerService = checkerService;
     this.violationManager = violationManager;
     this.configMap = new HashMap<>();
+    this.protectedConfigs = new HashSet<>();
     this.objectMapper = new ObjectMapper();
     this.listeners = new ArrayList<>();
     this.initPane();
@@ -121,8 +125,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
     // custom cell factory for hiding paths for built-in config files
     configPathColumn.setCellValueFactory(param -> {
       SimpleStringProperty value = null;
-      if (param.getValue().getKey().equals(CHECKSTYLE_BUILTIN_GOOGLE)
-          || param.getValue().getKey().equals(CHECKSTYLE_BUILTIN_SUN)) {
+      if (isBuiltIn(param.getValue().getKey())) {
         value = new SimpleStringProperty("(built-in)");
       } else {
         value = new SimpleStringProperty(param.getValue().getValue());
@@ -141,7 +144,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
     this.configMap.entrySet().forEach(this.tableView.getItems()::add);
     Button addButton = new Button("Add config");
     addButton.setOnAction(event -> {
-      CheckstyleConfigFormDialog dialog = new CheckstyleConfigFormDialog();
+      CheckstyleConfigFormDialog dialog = new CheckstyleConfigFormDialog(this.protectedConfigs);
       dialog.showAndWait();
 
       SimpleEntry<String, String> result = dialog.getResult();
@@ -156,6 +159,7 @@ public class CheckstylePreferences implements PreferenceGenerator {
     editButton.setOnAction(event -> {
       Entry<String, String> selected = this.tableView.getSelectionModel().getSelectedItem();
       CheckstyleConfigFormDialog dialog = new CheckstyleConfigFormDialog(
+          this.protectedConfigs,
           selected.getKey(),
           selected.getValue()
       );
@@ -182,15 +186,14 @@ public class CheckstylePreferences implements PreferenceGenerator {
     deleteButton.setDisable(true);
     editButton.setDisable(true);
 
-    // handle disable edit/delete buttons for builtin config files
+    // handle disable edit/delete buttons for built-in and provided config files
     this.tableView.getSelectionModel().selectedItemProperty().addListener(
         (obs, oldSelection, newSelection) -> {
           deleteButton.setDisable(true);
           editButton.setDisable(true);
           if (newSelection != null) {
             String configKey = newSelection.getKey();
-            if (!configKey.equals(CHECKSTYLE_BUILTIN_GOOGLE) 
-                && !configKey.equals(CHECKSTYLE_BUILTIN_SUN)) {
+            if (!this.protectedConfigs.contains(configKey)) {
               deleteButton.setDisable(false);
               editButton.setDisable(false);
             }
@@ -272,7 +275,14 @@ public class CheckstylePreferences implements PreferenceGenerator {
       e.printStackTrace();
     }
 
-    // load provided configs
+    // load configs provided by the BlueJ installation or user (see ProvidedConfigs)
+    Map<String, String> providedConfigs = ProvidedConfigs.find(List.of(
+        new File(this.blueJ.getSystemLibDir(), "extensions2"),
+        new File(this.blueJ.getUserConfigDir(), "extensions2")
+    ));
+    this.configMap.putAll(providedConfigs);
+
+    // load built-in configs
     this.configMap.put(
         CHECKSTYLE_BUILTIN_GOOGLE, 
         this.getClass().getClassLoader().getResource("config/google_checks.xml").toString()
@@ -282,12 +292,19 @@ public class CheckstylePreferences implements PreferenceGenerator {
         CHECKSTYLE_BUILTIN_SUN, 
         this.getClass().getClassLoader().getResource("config/sun_checks.xml").toString()
     );
+
+    this.protectedConfigs = new HashSet<>(providedConfigs.keySet());
+    this.protectedConfigs.add(CHECKSTYLE_BUILTIN_GOOGLE);
+    this.protectedConfigs.add(CHECKSTYLE_BUILTIN_SUN);
     
-    this.defaultConfigComboBox.setValue(
-        this.blueJ.getExtensionPropertyString(CHECKSTYLE_DEFAULT_CONFIG, CHECKSTYLE_BUILTIN_GOOGLE)
-    );
+    // the saved default may also come from BlueJ's bluej.defs (set by an installation)
+    this.defaultConfigComboBox.setValue(ProvidedConfigs.chooseDefault(
+        this.blueJ.getExtensionPropertyString(CHECKSTYLE_DEFAULT_CONFIG, null),
+        this.configMap.keySet(),
+        CHECKSTYLE_BUILTIN_GOOGLE
+    ));
     
-    if (this.currentConfig == null) {
+    if (this.currentConfig == null || !this.configMap.containsKey(this.currentConfig)) {
       this.currentConfig = this.defaultConfigComboBox.getValue();
     }
 
@@ -313,10 +330,9 @@ public class CheckstylePreferences implements PreferenceGenerator {
     String configMapAsString = "";
 
     try {
-      // save everything but the provided configs
+      // save everything but the built-in and provided configs, which are loaded on every start
       HashMap<String, String> copy = new HashMap<>(this.configMap);  
-      copy.remove(CHECKSTYLE_BUILTIN_GOOGLE);
-      copy.remove(CHECKSTYLE_BUILTIN_SUN);
+      copy.keySet().removeAll(this.protectedConfigs);
       configMapAsString = this.objectMapper.writeValueAsString(copy);
     } catch (Exception e) {
       e.printStackTrace();
@@ -377,6 +393,17 @@ public class CheckstylePreferences implements PreferenceGenerator {
     if (fileChosen != null) {
       this.addConfigPathInput.setText(fileChosen.getPath());
     }
+  }
+
+  /**
+   * Returns true if the config is one of the built-in configs bundled with the extension.
+   * 
+   * @param configKey the config name to check
+   * 
+   * @return true if the config is built-in
+   */
+  private static boolean isBuiltIn(String configKey) {
+    return configKey.equals(CHECKSTYLE_BUILTIN_GOOGLE) || configKey.equals(CHECKSTYLE_BUILTIN_SUN);
   }
 
   /**

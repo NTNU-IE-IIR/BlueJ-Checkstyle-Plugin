@@ -65,6 +65,8 @@ no.ntnu.iir.bluej.extensions.linting.checkstyle
 ├── CheckstyleStatusBar            ON/OFF indicator + config picker shown in the AuditWindow
 ├── CheckstyleMenuBuilder          Tools-menu item "Show Checkstyle overview"
 ├── CheckstyleIconMapper           Severity name -> icon URL
+├── ProvidedConfigs                Finds configs shipped in extensions2/checkstyle4bluej/
+├── SystemInfo                     Build info (version), generated from src/main/java-templates/
 └── checker
     ├── CheckerService             Owns and configures the Checkstyle Checker
     └── CheckerListener            Checkstyle AuditListener -> core Violations
