@@ -600,4 +600,5 @@ sequenceDiagram
 - `bluej:bluej` (BlueJ 6's `bluej.jar`, which contains the Extensions2 API) is resolved from the
   file-based Maven repository in `lib/`; BlueJ-Linting-Core from JitPack
   (`com.github.NTNU-IE-IIR:BlueJ-Linting-Core`).
-- Releases are produced by GitHub Actions (`.github/workflows/stage.yml` → `publish.yml`).
+- Releases are produced by one GitHub Actions workflow (`.github/workflows/release.yml`), run from
+  `develop`; it also fast-forwards `main` to the release tag.

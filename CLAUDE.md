@@ -50,12 +50,18 @@ mvn clean verify           # also what tools/buildAndInstallLocally.ps1 runs bef
 
 ### Releases (CI-driven, do not do manually)
 
-Releases are cut via GitHub Actions, not by running `mvn release:*` locally:
-1. `.github/workflows/stage.yml` (manual dispatch, from `develop`) runs
-   `mvn release:clean release:prepare release:perform` with explicit release/next-dev versions, then
-   triggers `publish.yml`.
-2. `.github/workflows/publish.yml` merges the release tag into `main`, builds, and uploads the jar to
-   GitHub Releases.
+Releases are cut via GitHub Actions, not by running `mvn release:*` locally. One workflow,
+`.github/workflows/release.yml` (manual dispatch from `develop`, with the release and next development
+versions as inputs), does everything in a single job:
+1. Fails early if `main` has commits that aren't in `develop`, or if the release tag already exists.
+2. Runs `mvn release:clean release:prepare release:perform`: release commits and the `v<version>` tag
+   are pushed to `develop`, and the tagged version is built in `target/checkout/`.
+3. Fast-forwards `main` to the tag (a plain push, which fails if it isn't a fast-forward).
+4. Creates the GitHub Release with the jar from `target/checkout/target/` and generated notes.
+
+**Never commit directly to `main`.** It only moves forward to release tags. Everything goes to `develop`
+(via PRs) and reaches `main` with the next release. If `main` ever gets a commit of its own, merge `main`
+into `develop` before releasing, or the release stops at step 1.
 
 ## Architecture
 
