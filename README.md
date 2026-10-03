@@ -5,7 +5,7 @@
 checkstyle4bluej is a BlueJ plugin that allows you to use the Checkstyle source code analysis tool.
 The user is provided the ability to choose what Checkstyle configuration file to use. 
 
-**Note:** It is important that the configuration file is compatible with Checkstyle version 9.2.
+**Note:** It is important that the configuration file is compatible with Checkstyle version 14.1.0.
 
 ![overview-example](assets/overview-example.png)
 
@@ -28,7 +28,7 @@ To install for a project, make a directory called `extensions2` in the projects 
 | Operating System | Install-type | Directories                                                  |
 |------------------|--------------|--------------------------------------------------------------|
 | **Mac**          | *User*       | `$HOME/Library/Preferences/org.bluej/extensions2`            |
-|                  | *System*     | `<BLUEJ_HOME>/BlueJ.app/Contents/Resources/Java/extensions2` |
+|                  | *System*     | `<BLUEJ_HOME>/BlueJ.app/Contents/Java/extensions2`           |
 | **Unix**         | *User*       | `$HOME/.bluej/extensions2`                                   | 
 |                  | *System*     | `<BLUEJ_HOME>/lib/extensions2`                               |
 | **Windows**      | *User*       | `%USERNAME%\bluej\extensions2`                               | 
@@ -73,16 +73,26 @@ We also appreciate ideas of enhancements and new features, feel free to suggest 
 
 Contributions are welcome. Feel free to discuss the changes with us in a [feature request][4] before submitting a Pull Request.
 
+Developer documentation:
+
+- [Architecture](docs/ARCHITECTURE.md): how the plugin is structured, with class and sequence diagrams
+- [Debugging](docs/DEBUGGING.md): how to run the plugin inside BlueJ and attach a debugger such as IntelliJ IDEA
+
 ## Dependencies
 
-This plugin relies on the usage of the BlueJ Extensions2 API. The latest version is added to this repository in the `lib` directory.
-The bluejext2 jar is bundled with the BlueJ installation, it can be retrieved from there. Detailed instructions can be found in the [BlueJ documentation][5].
+This plugin relies on the BlueJ Extensions2 API, which is included in BlueJ's own `bluej.jar`. That jar ships with every BlueJ
+installation and is added to this repository's local Maven repository in the `lib` directory as `bluej:bluej`.
+Detailed information about the API can be found in the [BlueJ documentation][5].
 
-A [toolscript](tools/updateBlueJdeps.ps1) is available for Windows users to update the API, it can also be used as a reference as on how to install new versions of the API to the lib directory.
+The current version is taken from BlueJ 6.0.0 (Java 21, Extensions2 API major version 3).
 
-The current version of the API is version 3.2, from version 5.0.2 of BlueJ.
+Toolscripts are available to install the jar from a newer BlueJ version into the `lib` directory. Both take the BlueJ version as an argument:
 
-**Note:** the script assumes BlueJ is installed for all users.
+- **Windows:** [`tools/updateBlueJdeps.ps1`](tools/updateBlueJdeps.ps1) (assumes BlueJ is installed for all users, in `C:\Program Files\BlueJ`)
+- **macOS:** [`tools/updateBlueJdeps.sh`](tools/updateBlueJdeps.sh), e.g. `./tools/updateBlueJdeps.sh 6.0.0`. It looks for `BlueJ.app` in
+  `/Applications` or `~/Applications`, or you can pass the directory containing `bluej.jar` as a second argument.
+
+After installing a new version, update the `bluej:bluej` dependency version in `pom.xml` to match.
 
 
 A lot of core functionality for this plugin is provided by [BlueJ-Linting-Core][6], feel free to take a look at it as well.

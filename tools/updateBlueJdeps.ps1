@@ -10,7 +10,7 @@ param (
 );
 
 # lif of JAR files to update
-$JarDependencies = "bluejext2";
+$JarDependencies =  @("bluej");
 $InstallDir = "C:\Program Files\BlueJ";
 
 foreach ($JarName in $JarDependencies) {
