@@ -593,10 +593,11 @@ sequenceDiagram
 ## Build and packaging
 
 - Maven project, Java 21 (`maven.compiler.release`), targeting the BlueJ Extensions2 API major
-  version 3 (BlueJ 6.x).
+  version 3 (BlueJ 6.0.0).
 - `maven-shade-plugin` produces the installable fat jar `target/checkstyle4bluej-<version>.jar`
-  containing Checkstyle, Jackson and BlueJ-Linting-Core. JavaFX and `bluejext2` are `provided` by
-  BlueJ at runtime and are not bundled.
-- `bluejext2` is resolved from the file-based Maven repository in `lib/`; BlueJ-Linting-Core from
-  JitPack.
+  containing Checkstyle, Jackson and BlueJ-Linting-Core. JavaFX and BlueJ's own `bluej.jar` are
+  `provided` by BlueJ at runtime and are not bundled.
+- `bluej:bluej` (BlueJ 6's `bluej.jar`, which contains the Extensions2 API) is resolved from the
+  file-based Maven repository in `lib/`; BlueJ-Linting-Core from JitPack
+  (`com.github.NTNU-IE-IIR:BlueJ-Linting-Core`).
 - Releases are produced by GitHub Actions (`.github/workflows/stage.yml` → `publish.yml`).

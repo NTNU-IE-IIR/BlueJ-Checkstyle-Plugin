@@ -12,7 +12,8 @@ Most of the actual UI/violation-tracking machinery (audit window, violation mana
 event handlers, rule definitions) lives in an external dependency, **BlueJ-Linting-Core**
 (`no.ntnu.iir.bluej.extensions.linting.core.*`, pulled from JitPack —
 https://github.com/NTNU-IE-IIR/BlueJ-Linting-Core). This repo only implements the Checkstyle-specific
-plumbing on top of that core. When something isn't in this repo's `src/`, it's almost certainly in
+plumbing on top of that core. See `docs/ARCHITECTURE.md` for class and sequence diagrams covering both
+this repo and the core classes it relies on. When something isn't in this repo's `src/`, it's almost certainly in
 that core library — don't assume it's missing.
 
 ## Build & release commands
@@ -31,9 +32,13 @@ mvn clean verify           # also what tools/buildAndInstallLocally.ps1 runs bef
   shaded jar into `C:\Program Files\BlueJ\lib\extensions2\`. On macOS/Linux, do the equivalent manually:
   build with `mvn clean verify`, then copy the non-`-original` jar from `target/` into one of BlueJ's
   `extensions2` directories (see README's install table) and restart BlueJ to test.
-- `tools/updateBlueJdeps.ps1` installs a new version of the BlueJ `bluejext2` API jar into the repo's
-  local Maven repo at `lib/` via `mvn install:install-file` (Windows-only helper; the jar must already
-  exist in the local BlueJ install).
+- `tools/updateBlueJdeps.ps1` (Windows) and `tools/updateBlueJdeps.sh` (macOS, zsh) install BlueJ's own
+  `bluej.jar` from a local BlueJ installation into the repo's local Maven repo at `lib/` as
+  `bluej:bluej:<version>`, via `mvn install:install-file`. Both take the version as an argument (e.g.
+  `./tools/updateBlueJdeps.sh 6.0.0 [installDir]`). The Windows script reads from
+  `C:\Program Files\BlueJ\lib\`; the macOS script searches `/Applications/BlueJ.app/Contents/Java` and
+  `~/Applications/BlueJ.app/Contents/Java` unless an `installDir` is given. After installing a new
+  version, bump the `bluej:bluej` dependency version in `pom.xml` to match.
 
 ### Releases (CI-driven, do not do manually)
 
@@ -81,18 +86,24 @@ supplies the `CheckerService`/`CheckerListener` those handlers call into.
 
 ## Key constraints
 
-- **Java 21** (`maven.compiler.release`), targets **BlueJ 6.x / Extensions2 API major version 3**
-  (`isCompatible()` checks `getExtensionsAPIVersionMajor() == 3`). JavaFX and the `bluejext2` API jar
-  are `provided`-scope — they come from the BlueJ runtime, not the shaded jar.
+- **Java 21** (`maven.compiler.release`), targets **BlueJ 6.0.0** (which bundles Java 21.0.6 and JavaFX
+  23.0.2; `javafx.version` in the pom is pinned to match) and the **Extensions2 API major version 3**
+  (`isCompatible()` checks `getExtensionsAPIVersionMajor() == 3`). JavaFX and the `bluej:bluej` jar are
+  `provided`-scope — they come from the BlueJ runtime and are excluded from the shaded jar.
 - **Maven itself must run on a JDK 21+ runtime** — `javac --release 21` fails with `release version 21
   not supported` on anything older, regardless of what `JAVA_HOME`/IDE project SDK you *think* is
   active. If you hit that error, point `JAVA_HOME` (terminal) or the Project SDK (IntelliJ) at a 21+
-  JDK. `.idea/misc.xml` currently still pins `project-jdk-name="openjdk-17"` — that's stale relative to
-  the pom and should be bumped to 21 when touching IDE config.
+  JDK. `.idea/` and `*.iml` are gitignored, so IntelliJ settings are per-machine.
 - Checkstyle config files loaded by users **must be compatible with the Checkstyle version pinned in
-  `pom.xml`** (`checkstyle.version`, currently 10.3.4 — README mentions 9.2, which is stale).
-- The `bluejext2` dependency isn't on Maven Central — it's resolved from the file-based Maven repo
-  checked into `lib/` (see `pom.xml`'s `local_repository`). If you need a newer version, use
-  `tools/updateBlueJdeps.ps1` or replicate what it does manually (`mvn install:install-file` into `lib/`).
-- `BlueJ-Linting-Core` is resolved via JitPack (`com.github.NTNU-IE-IIR:BlueJ-Linting-Core`). When
-  debugging behavior that "isn't in this repo," check that project.
+  `pom.xml`** (`checkstyle.version`, currently 14.1.0 — README mentions 9.2, which is stale). The
+  bundled `src/main/resources/config/google_checks.xml`/`sun_checks.xml` must also be valid for that
+  version.
+- The BlueJ API dependency (`bluej:bluej:6.0.0`, the full `bluej.jar` from BlueJ 6, which contains the
+  `bluej.extensions2` API) isn't on Maven Central — it's resolved from the file-based Maven repo
+  checked into `lib/` (see `pom.xml`'s `local_repository`). Earlier versions used the separate
+  `bluejext2` API jar; that has been removed. Use the `tools/updateBlueJdeps.*` scripts to install a
+  newer BlueJ version.
+- `BlueJ-Linting-Core` is resolved via JitPack (`com.github.NTNU-IE-IIR:BlueJ-Linting-Core`, currently
+  1.2.1). JitPack builds it from a Git tag in that repo, so a new core version must be tagged/released on
+  GitHub before the pom can use it — a version that only exists in your local `~/.m2` will build locally
+  but fail in CI. When debugging behavior that "isn't in this repo," check that project.
