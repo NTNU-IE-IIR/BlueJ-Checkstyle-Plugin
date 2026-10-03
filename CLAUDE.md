@@ -63,6 +63,11 @@ versions as inputs), does everything in a single job:
 (via PRs) and reaches `main` with the next release. If `main` ever gets a commit of its own, merge `main`
 into `develop` before releasing, or the release stops at step 1.
 
+**Close fixed issues by hand after a release.** `main` is the default branch, but PRs are merged into
+`develop` and `main` is only fast-forwarded by the release workflow, never through a PR. So
+`Closes #N`/`Fixes #N` in a PR never closes the issue. After a release, close each issue fixed in it
+with a comment that links the release and the PR (and, for feature requests, says how to use it).
+
 ## Architecture
 
 Entry point: `CheckstyleExtension` (`bluej.extensions2.Extension` subclass). `startup(BlueJ)` wires
