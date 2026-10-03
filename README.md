@@ -73,6 +73,11 @@ We also appreciate ideas of enhancements and new features, feel free to suggest 
 
 Contributions are welcome. Feel free to discuss the changes with us in a [feature request][4] before submitting a Pull Request.
 
+Developer documentation:
+
+- [Architecture](docs/ARCHITECTURE.md): how the plugin is structured, with class and sequence diagrams
+- [Debugging](docs/DEBUGGING.md): how to run the plugin inside BlueJ and attach a debugger such as IntelliJ IDEA
+
 ## Dependencies
 
 This plugin relies on the BlueJ Extensions2 API, which is included in BlueJ's own `bluej.jar`. That jar ships with every BlueJ

@@ -38,7 +38,8 @@ mvn clean verify           # also what tools/buildAndInstallLocally.ps1 runs bef
   JVM Debug". `--suspend` makes BlueJ wait for the debugger, to break in `CheckstyleExtension.startup()`.
   BlueJ's JavaFX jars must be on the classpath, not the module path (module path → `IllegalAccessError`).
   `LOGGER` output goes to the terminal; `printStackTrace` output goes to
-  `~/Library/Preferences/org.bluej/bluej-debuglog.txt`.
+  `~/Library/Preferences/org.bluej/bluej-debuglog.txt`. Full walkthrough (manual steps, breakpoints,
+  HotSwap, troubleshooting): `docs/DEBUGGING.md`.
 - `tools/updateBlueJdeps.ps1` (Windows) and `tools/updateBlueJdeps.sh` (macOS, zsh) install BlueJ's own
   `bluej.jar` from a local BlueJ installation into the repo's local Maven repo at `lib/` as
   `bluej:bluej:<version>`, via `mvn install:install-file`. Both take the version as an argument (e.g.
