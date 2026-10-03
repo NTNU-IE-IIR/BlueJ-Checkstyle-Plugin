@@ -16,18 +16,15 @@ jobs:
   perform-release:
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # push the release commits and tag (via the checkout's GITHUB_TOKEN)
+      actions: write   # trigger publish.yml
 
     steps:
       - name: Git Checkout
         uses: actions/checkout@v7
         with:
-          ref: 'develop' 
-          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ref: 'develop'
 
       - name: Set GitHub Actions as commit author
         shell: bash
