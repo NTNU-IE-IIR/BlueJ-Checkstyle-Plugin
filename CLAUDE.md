@@ -26,8 +26,8 @@ mvn clean verify           # also what tools/buildAndInstallLocally.ps1 runs bef
 
 - Build output: `target/checkstyle4bluej-<version>.jar` — this is the shaded/fat jar (built via
   `maven-shade-plugin`) that gets installed into BlueJ. A `-original.jar` (unshaded) is also produced.
-- There is currently no real test suite (`src/test/java/.../checkstyle/` only has a `.gitkeep`) — do
-  not assume `mvn test` exercises meaningful coverage.
+- Tests use JUnit 5 (Jupiter) and run with `mvn test`/`mvn verify`. Coverage is minimal: only
+  `ProvidedConfigs` is tested. The JavaFX/BlueJ classes have no tests, so changes there need checking in BlueJ.
 - Local install/dev loop (Windows only, see `tools/buildAndInstallLocally.ps1`): builds then copies the
   shaded jar into `C:\Program Files\BlueJ\lib\extensions2\`. On macOS/Linux, do the equivalent manually:
   build with `mvn clean verify`, then copy the non-`-original` jar from `target/` into one of BlueJ's
@@ -78,6 +78,12 @@ everything together — this is the best starting point for understanding how th
   the UI. `saveValues()`/`configureCheckerService()` push the selected config into `CheckerService` and
   re-check all open packages on success, or disable checking and show an `ErrorDialog` if the config is
   invalid.
+- **`ProvidedConfigs`** — finds config files shipped with a BlueJ installation: every `*.xml` in a
+  `checkstyle4bluej/` folder inside the system or user `extensions2` directory (issue #16). Loaded by
+  `CheckstylePreferences.loadValues()` and protected like the built-ins (not editable, never saved to
+  the user's `ConfigMap`). A provided `default_checks.xml` becomes the default unless the user chose
+  another. `Checkstyle.DefaultConfig` can also be preset in BlueJ's `bluej.defs`, because BlueJ falls
+  back to it for extension settings.
 - **`CheckstyleConfigFormDialog`** — modal dialog used by the Preferences pane's Add/Edit buttons to
   create/edit a single (name, path) config entry.
 - **`CheckstyleStatusBar`** (extends `HBox`, implements `CheckstylePreferencesListener`) — small status

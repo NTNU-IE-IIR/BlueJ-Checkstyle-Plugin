@@ -61,6 +61,29 @@ The selected default config will be loaded by default, but can be changed from t
 
 ![current-config-example](assets/current-config-example.png)
 
+### Providing configs with a BlueJ installation
+
+Schools and teachers can ship Checkstyle configs with BlueJ, so that students get them without any setup.
+Put the config files in a folder called `checkstyle4bluej` inside one of the `extensions2` directories listed
+above, for example `<BLUEJ_HOME>/lib/extensions2/checkstyle4bluej/school_checks.xml`.
+
+- Every `.xml` file in that folder is loaded when BlueJ starts, named after the file (`school_checks.xml`
+  becomes `school_checks`). Like the built-in `Google` and `Sun` configs, these configs can't be edited or
+  deleted in the preferences, and they're never copied into the user's settings, so updating a file always
+  takes effect.
+- Both the *System* and the *User* `extensions2` directories are searched. If both contain a file with the
+  same name, the one in the *User* directory is used.
+- A file called `default_checks.xml` is used as the default config, unless the user has chosen another one in
+  the preferences.
+- To make a different config the default, set it in BlueJ's system-wide `bluej.defs` file (in
+  `<BLUEJ_HOME>/lib`, or `BlueJ.app/Contents/Java` on Mac):
+
+  ```properties
+  extensions.no.ntnu.iir.bluej.extensions.linting.checkstyle.CheckstyleExtension.settings.Checkstyle.DefaultConfig=school_checks
+  ```
+
+The config files must be valid for the Checkstyle version the extension uses (see [Dependencies](#dependencies)).
+
 ## Issues
 
 Are you experiencing bugs/problems using this plugin? 

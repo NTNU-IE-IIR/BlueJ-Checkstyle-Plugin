@@ -2,6 +2,7 @@ package no.ntnu.iir.bluej.extensions.linting.checkstyle;
 
 import java.io.File;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Set;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -25,15 +26,19 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
   private boolean validConfigName;
   private boolean validConfigPath;
   private Label errorLabel;
+  private Set<String> reservedNames;
 
   private static final String ERROR_CLASS = "error";
 
   /**
    * Instantiates a new Dialog without predefined fields.
    * Used for adding new entries.
+   * 
+   * @param reservedNames config names that cannot be used (built-in and provided configs)
    */
-  public CheckstyleConfigFormDialog() {
+  public CheckstyleConfigFormDialog(Set<String> reservedNames) {
     super();
+    this.reservedNames = reservedNames;
     this.setTitle("Adding a config file");
     this.setHeaderText("Add a Checkstyle Configuration file");
     this.initPane();
@@ -49,11 +54,16 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
    * Instantiates a new Dialog with predefined fields.
    * Used for editing existing entries.
    * 
+   * @param reservedNames config names that cannot be used (built-in and provided configs)
    * @param configName the predefined configuration file name
    * @param configPath the predefined configuration file path
    */
-  public CheckstyleConfigFormDialog(String configName, String configPath) {
-    this();
+  public CheckstyleConfigFormDialog(
+      Set<String> reservedNames,
+      String configName,
+      String configPath
+  ) {
+    this(reservedNames);
     this.setTitle("Editing config file");
     this.setHeaderText("Editing a Checkstyle configuration file");
     this.configNameTextField.setText(configName);
@@ -67,8 +77,7 @@ public class CheckstyleConfigFormDialog extends Dialog<SimpleEntry<String, Strin
   private void initPane() {
     this.configNameTextField = new TextField();
     this.configNameTextField.textProperty().addListener((obs, oldValue, newValue) -> {
-      this.validConfigName = (!newValue.equals("Google")
-          && !newValue.equals("Sun")
+      this.validConfigName = (!this.reservedNames.contains(newValue)
           && !newValue.isEmpty());
       
       if (this.validConfigName) {
