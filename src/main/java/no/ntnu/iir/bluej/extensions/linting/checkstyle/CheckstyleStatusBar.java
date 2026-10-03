@@ -5,6 +5,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 /**
  * Represents a Checkstyle Status Bar.
@@ -40,10 +42,16 @@ public class CheckstyleStatusBar extends HBox implements CheckstylePreferencesLi
 
     this.statusIndicator = new Label("Status: unknown");
 
+    // pushes the version label to the far right
+    Region spacer = new Region();
+    HBox.setHgrow(spacer, Priority.ALWAYS);
+
     this.getChildren().addAll(
         this.statusIndicator,
         new Label("Current config:"),
-        this.currentConfigComboBox
+        this.currentConfigComboBox,
+        spacer,
+        new Label("v" + SystemInfo.VERSION)
     );
 
     this.preferences.setConfig(this.preferences.getCurrentConfig());

@@ -63,7 +63,7 @@ public class CheckstyleExtension extends Extension {
 
   @Override
   public String getVersion() {
-    return this.getClass().getPackage().getImplementationVersion();
+    return SystemInfo.VERSION;
   }
 
   @Override
