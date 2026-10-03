@@ -85,6 +85,10 @@ everything together — this is the best starting point for understanding how th
   listens for config changes via `CheckstylePreferencesListener.onConfigChanged`.
 - **`CheckstyleMenuBuilder`** (extends BlueJ's `MenuGenerator`) — adds "Show Checkstyle overview" to the
   Tools menu, delegating to the core library's `PackageEventHandler.showProjectWindow`.
+- **`SystemInfo`** — build info (`VERSION`, from the pom's `project.version`), used by the status bar's
+  version label and `CheckstyleExtension.getVersion()`. It is generated: edit the template in
+  `src/main/java-templates/`, which `templating-maven-plugin` fills in and writes to
+  `target/generated-sources/java-templates/` during `generate-sources`.
 - **`CheckstyleIconMapper`** — maps Checkstyle severity names (`warning`, `error`) to icon URLs from
   `src/main/resources/images/`, via the core library's `IconMapper` interface.
 
