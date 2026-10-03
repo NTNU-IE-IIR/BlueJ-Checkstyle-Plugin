@@ -95,7 +95,7 @@ supplies the `CheckerService`/`CheckerListener` those handlers call into.
   active. If you hit that error, point `JAVA_HOME` (terminal) or the Project SDK (IntelliJ) at a 21+
   JDK. `.idea/` and `*.iml` are gitignored, so IntelliJ settings are per-machine.
 - Checkstyle config files loaded by users **must be compatible with the Checkstyle version pinned in
-  `pom.xml`** (`checkstyle.version`, currently 14.1.0 — README mentions 9.2, which is stale). The
+  `pom.xml`** (`checkstyle.version`, currently 14.1.0 — keep the version stated in the README in sync when bumping it). The
   bundled `src/main/resources/config/google_checks.xml`/`sun_checks.xml` must also be valid for that
   version.
 - The BlueJ API dependency (`bluej:bluej:6.0.0`, the full `bluej.jar` from BlueJ 6, which contains the
